@@ -1,0 +1,22 @@
+{
+  "name": "tontine-digitale",
+  "version": "1.0.0",
+  "description": "Tontine Digitale — Épargne collective africaine digitalisée",
+  "main": "index.js",
+  "scripts": {
+    "build": "echo 'Static site, no build needed'",
+    "cap:add": "npx cap add android",
+    "cap:sync": "npx cap sync",
+    "cap:open": "npx cap open android",
+    "cap:run": "npx cap run android"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.0.0",
+    "@capacitor/core": "^6.0.0",
+    "@capacitor/status-bar": "^6.0.0",
+    "@capacitor/splash-screen": "^6.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^6.0.0"
+  }
+}
