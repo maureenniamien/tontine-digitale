@@ -513,7 +513,11 @@ async function signup() {
   if (pwd !== pwd2) return toast('Les mots de passe ne correspondent pas','error');
   if (pwd.length < 6) return toast('Mot de passe trop court (min 6)','error');
   toast('Création du compte...');
-  const { data, error } = await sb.auth.signUp({ email, password: pwd });
+  const { data, error } = await sb.auth.signUp({ 
+    email, 
+    password: pwd,
+    options: { data: { full_name: name, phone } }
+  });
   if (error) return toast(error.message,'error');
   user = data.user;
   await sb.from('profiles').upsert({ id: user.id, full_name: name, phone, email });
