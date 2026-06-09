@@ -327,7 +327,7 @@ input,button,select,textarea{font-family:inherit;-webkit-appearance:none;appeara
   </div>
   <div class="tab-panel active" id="tp-membres"><div id="membres-list"></div></div>
   <div class="tab-panel" id="tp-paiements">
-    <button class="btn btn-primary" style="margin-bottom:.8rem;" onclick="showModal('modal-pay')">💰 Enregistrer mon paiement</button>
+    <button class="btn btn-primary" style="margin-bottom:.8rem;" onclick="openPayModal()">💰 Cotiser</button>
     <div id="paiements-list"></div>
   </div>
   <div class="tab-panel" id="tp-chat" style="display:flex;flex-direction:column;padding:0;height:calc(100vh - 280px);">
@@ -410,20 +410,60 @@ input,button,select,textarea{font-family:inherit;-webkit-appearance:none;appeara
 <div class="modal-overlay" id="modal-pay">
   <div class="modal">
     <div class="modal-handle"></div>
-    <div class="modal-title">💰 Enregistrer un paiement</div>
-    <div class="form-group"><label class="form-label">Montant (FCFA)</label><input class="form-input" id="pay-amount" type="number"></div>
-    <div class="form-group"><label class="form-label">Mode de paiement</label>
-      <select class="form-input form-select" id="pay-mode">
-        <option value="especes">Espèces</option>
-        <option value="orange_money">Orange Money</option>
-        <option value="wave">Wave</option>
-        <option value="mtn_momo">MTN MoMo</option>
-        <option value="moov_money">Moov Money</option>
-      </select>
+    <div class="modal-title">💰 Cotiser</div>
+
+    <!-- Étape 1: choix mode -->
+    <div id="pay-step-1">
+      <div style="font-size:.82rem;color:var(--muted);margin-bottom:1rem;">Choisis ton mode de paiement</div>
+      <div id="pay-methods" style="display:flex;flex-direction:column;gap:.7rem;"></div>
+      <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid rgba(0,0,0,.08);">
+        <div style="font-size:.75rem;color:var(--muted);margin-bottom:.6rem;text-transform:uppercase;letter-spacing:.06em;font-weight:600;">Paiement manuel</div>
+        <button class="btn btn-ghost" onclick="showPayStep(2,'especes')">
+          <span style="font-size:1.2rem;">💵</span> Espèces / Virement direct
+        </button>
+      </div>
+      <button class="btn btn-ghost" style="margin-top:.6rem;" onclick="closeModal('modal-pay')">Annuler</button>
     </div>
-    <div class="form-group"><label class="form-label">Note (optionnel)</label><input class="form-input" id="pay-note" placeholder="Ex: paiement janvier"></div>
-    <button class="btn btn-primary" onclick="recordPay()">Confirmer</button>
-    <button class="btn btn-ghost" style="margin-top:.6rem;" onclick="closeModal('modal-pay')">Annuler</button>
+
+    <!-- Étape 2: formulaire -->
+    <div id="pay-step-2" style="display:none;">
+      <div id="pay-method-header" style="display:flex;align-items:center;gap:.8rem;margin-bottom:1.2rem;">
+        <div id="pay-method-icon" style="font-size:2rem;"></div>
+        <div>
+          <div style="font-weight:700;" id="pay-method-name"></div>
+          <div style="font-size:.75rem;color:var(--muted);" id="pay-method-sub"></div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Montant (FCFA)</label>
+        <input class="form-input" id="pay-amount" type="number" readonly style="background:var(--sand);font-weight:700;font-size:1.1rem;">
+      </div>
+      <div id="pay-phone-group" class="form-group" style="display:none;">
+        <label class="form-label">Numéro Mobile Money</label>
+        <input class="form-input" id="pay-phone" type="tel" placeholder="Ex: 0701234567" oninput="this.value=this.value.replace(/[^0-9+\s]/g,'')">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Note (optionnel)</label>
+        <input class="form-input" id="pay-note" placeholder="Ex: cotisation janvier">
+      </div>
+      <button class="btn btn-primary" id="pay-confirm-btn" onclick="processPay()">Confirmer le paiement</button>
+      <button class="btn btn-ghost" style="margin-top:.6rem;" onclick="showPayStep(1,'')">← Retour</button>
+    </div>
+
+    <!-- Étape 3: traitement -->
+    <div id="pay-step-3" style="display:none;text-align:center;padding:1.5rem 0;">
+      <div class="spinner" style="margin:0 auto 1rem;"></div>
+      <div style="font-weight:700;font-size:1rem;" id="pay-processing-label">Traitement en cours...</div>
+      <div style="font-size:.82rem;color:var(--muted);margin-top:.4rem;" id="pay-processing-sub">Veuillez patienter</div>
+    </div>
+
+    <!-- Étape 4: succès -->
+    <div id="pay-step-4" style="display:none;text-align:center;padding:1.5rem 0;">
+      <div style="font-size:3.5rem;margin-bottom:.8rem;">✅</div>
+      <div style="font-weight:800;font-size:1.2rem;color:var(--green);">Paiement confirmé !</div>
+      <div style="font-size:.85rem;color:var(--muted);margin:.6rem 0 1.5rem;" id="pay-success-msg"></div>
+      <button class="btn btn-primary" onclick="closeModal('modal-pay');loadPays(curTontine.id);">Fermer</button>
+    </div>
   </div>
 </div>
 
@@ -633,15 +673,150 @@ async function loadPays(tid) {
     </div>`).join('');
 }
 
-async function recordPay() {
-  const m = parseInt(v('pay-amount')), mode = v('pay-mode'), note = v('pay-note');
-  if (!m) return toast('Entre un montant','error');
-  const { error } = await sb.from('paiements').insert({ tontine_id:curTontine.id, user_id:user.id, montant:m, mode_paiement:mode, note, statut:'confirme' });
-  if (error) return toast(error.message,'error');
-  closeModal('modal-pay');
-  toast('Paiement enregistré ✅','success');
-  loadPays(curTontine.id);
+// ════════════════════════════════════════
+// PAIEMENT — CinetPay simulation
+// ════════════════════════════════════════
+
+// Clés CinetPay (remplace par les vraies quand tu auras le compte)
+const CINETPAY_APIKEY = 'VOTRE_API_KEY'; // à remplacer
+const CINETPAY_SITEID = 'VOTRE_SITE_ID'; // à remplacer
+const CINETPAY_SANDBOX = true; // false en production
+
+const PAY_METHODS = [
+  { id:'orange_money', name:'Orange Money', sub:'Paiement instantané', icon:'🟠', color:'#ff6b00', phone:true },
+  { id:'wave',         name:'Wave',         sub:'Paiement instantané', icon:'🔵', color:'#1a73e8', phone:true },
+  { id:'mtn_momo',    name:'MTN MoMo',     sub:'Paiement instantané', icon:'🟡', color:'#ffcc00', phone:true },
+  { id:'moov_money',  name:'Moov Money',   sub:'Paiement instantané', icon:'🔴', color:'#e63946', phone:true },
+];
+
+let curPayMode = '';
+
+function openPayModal() {
+  // Reset
+  showPayStep(1,'');
+  document.getElementById('pay-note').value = '';
+  document.getElementById('pay-phone').value = '';
+  // Render methods
+  document.getElementById('pay-methods').innerHTML = PAY_METHODS.map(m => `
+    <button onclick="showPayStep(2,'${m.id}')" style="display:flex;align-items:center;gap:1rem;padding:1rem;border-radius:1rem;border:1.5px solid rgba(0,0,0,.1);background:#fff;cursor:pointer;width:100%;text-align:left;transition:.2s;">
+      <span style="font-size:1.8rem;">${m.icon}</span>
+      <div style="flex:1;">
+        <div style="font-weight:700;font-size:.95rem;">${m.name}</div>
+        <div style="font-size:.75rem;color:var(--muted);">${m.sub}</div>
+      </div>
+      <span style="color:var(--muted);font-size:1.1rem;">›</span>
+    </button>`).join('');
+  showModal('modal-pay');
 }
+
+function showPayStep(n, modeId) {
+  [1,2,3,4].forEach(i => document.getElementById('pay-step-'+i).style.display = i===n?'':'none');
+  if (n === 2 && modeId) {
+    curPayMode = modeId;
+    const m = PAY_METHODS.find(x=>x.id===modeId);
+    if (m) {
+      document.getElementById('pay-method-icon').textContent = m.icon;
+      document.getElementById('pay-method-name').textContent = m.name;
+      document.getElementById('pay-method-sub').textContent = m.sub;
+      document.getElementById('pay-phone-group').style.display = m.phone ? 'block' : 'none';
+      document.getElementById('pay-confirm-btn').textContent = `Payer via ${m.name}`;
+    } else {
+      // Espèces
+      curPayMode = 'especes';
+      document.getElementById('pay-method-icon').textContent = '💵';
+      document.getElementById('pay-method-name').textContent = 'Espèces / Virement';
+      document.getElementById('pay-method-sub').textContent = 'Confirmation manuelle';
+      document.getElementById('pay-phone-group').style.display = 'none';
+      document.getElementById('pay-confirm-btn').textContent = 'Confirmer le paiement';
+    }
+  }
+}
+
+async function processPay() {
+  const montant = curTontine?.montant;
+  const note = v('pay-note');
+  const phone = v('pay-phone');
+
+  if (curPayMode !== 'especes' && !phone) return toast('Entre ton numéro Mobile Money','error');
+
+  if (curPayMode === 'especes') {
+    // Paiement manuel direct
+    await savePaiement(montant, curPayMode, note, 'confirme');
+    showPaySuccess(montant, 'especes');
+    return;
+  }
+
+  // Simulation CinetPay
+  showPayStep(3,'');
+  document.getElementById('pay-processing-label').textContent = `Envoi vers ${PAY_METHODS.find(m=>m.id===curPayMode)?.name}...`;
+  document.getElementById('pay-processing-sub').textContent = `Numéro: ${phone}`;
+
+  if (CINETPAY_SANDBOX) {
+    // MODE SIMULATION — simule 2 secondes de traitement
+    await delay(2000);
+    document.getElementById('pay-processing-label').textContent = 'Vérification du paiement...';
+    await delay(1500);
+    // Simule succès (90%) ou échec (10%)
+    const success = Math.random() > 0.1;
+    if (success) {
+      await savePaiement(montant, curPayMode, note || `Paiement ${curPayMode}`, 'confirme');
+      showPaySuccess(montant, curPayMode);
+    } else {
+      showPayStep(2, curPayMode);
+      toast('Paiement refusé. Vérifie ton solde et réessaie.','error');
+    }
+  } else {
+    // MODE PRODUCTION — intégration CinetPay réelle
+    try {
+      const txId = 'TD_' + Date.now() + '_' + user.id.slice(0,8);
+      const res = await fetch('https://api-checkout.cinetpay.com/v2/payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          apikey: CINETPAY_APIKEY,
+          site_id: CINETPAY_SITEID,
+          transaction_id: txId,
+          amount: montant,
+          currency: 'XOF',
+          description: `Cotisation tontine ${curTontine.nom}`,
+          customer_phone_number: phone,
+          payment_method: curPayMode,
+          notify_url: 'https://flpzpezjmdveercsqnsh.supabase.co/functions/v1/cinetpay-webhook',
+        })
+      });
+      const data = await res.json();
+      if (data.code === '201') {
+        await savePaiement(montant, curPayMode, note, 'en_attente');
+        showPaySuccess(montant, curPayMode, true);
+      } else {
+        showPayStep(2, curPayMode);
+        toast(data.message || 'Erreur de paiement', 'error');
+      }
+    } catch(e) {
+      showPayStep(2, curPayMode);
+      toast('Erreur réseau','error');
+    }
+  }
+}
+
+async function savePaiement(montant, mode, note, statut) {
+  await sb.from('paiements').insert({
+    tontine_id: curTontine.id, user_id: user.id,
+    montant, mode_paiement: mode, note, statut
+  });
+}
+
+function showPaySuccess(montant, mode, pending = false) {
+  showPayStep(4,'');
+  const mName = PAY_METHODS.find(m=>m.id===mode)?.name || 'Espèces';
+  document.getElementById('pay-success-msg').innerHTML = pending
+    ? `<strong>${fmt(montant)} FCFA</strong> via ${mName}<br>En attente de confirmation`
+    : `<strong>${fmt(montant)} FCFA</strong> via ${mName === 'Espèces/Virement' ? 'Espèces' : mName}<br>enregistré avec succès`;
+}
+
+function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+async function recordPay() { openPayModal(); } // compat ancien code
 
 // ════════════════════════════════════════
 // CHAT
