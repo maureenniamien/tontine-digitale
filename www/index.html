@@ -9,248 +9,159 @@
 <title>Tontine Digitale</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-:root {
-  --ink: #0f0a00;
-  --cream: #fdf6e3;
-  --gold: #e8a020;
-  --gold-light: #f5c84a;
-  --orange: #d4480a;
-  --green: #1a6b3c;
-  --green-light: #2d9e5f;
-  --sand: #f0e2c0;
-  --muted: #6b5c3e;
-  --danger: #c0392b;
-  --safe-top: env(safe-area-inset-top, 0px);
-  --safe-bottom: env(safe-area-inset-bottom, 0px);
+:root{
+  --ink:#0f0a00;--cream:#fdf6e3;--gold:#e8a020;--gold-light:#f5c84a;
+  --orange:#d4480a;--green:#1a6b3c;--green-light:#2d9e5f;
+  --sand:#f0e2c0;--muted:#6b5c3e;--danger:#c0392b;
+  --safe-top:env(safe-area-inset-top,0px);--safe-bottom:env(safe-area-inset-bottom,0px);
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 html,body{height:100%;overflow:hidden;background:var(--cream);font-family:system-ui,-apple-system,sans-serif;color:var(--ink);}
 input,button,select,textarea{font-family:inherit;-webkit-appearance:none;appearance:none;}
 
-/* ── APP SHELL ── */
 #app{height:100%;display:flex;flex-direction:column;}
 .screen{display:none;flex:1;flex-direction:column;overflow:hidden;}
 .screen.active{display:flex;}
 
-/* ── TOPBAR ── */
-.topbar{
-  padding:calc(0.9rem + var(--safe-top)) 1rem 0.9rem;
-  background:var(--cream);
-  border-bottom:1.5px solid rgba(232,160,32,0.2);
-  display:flex;align-items:center;gap:0.7rem;
-  flex-shrink:0;
-}
+.topbar{padding:calc(.9rem + var(--safe-top)) 1rem .9rem;background:var(--cream);border-bottom:1.5px solid rgba(232,160,32,.2);display:flex;align-items:center;gap:.7rem;flex-shrink:0;}
 .topbar-title{font-weight:700;font-size:1.05rem;flex:1;}
-.topbar .logo{font-weight:800;font-size:1.1rem;color:var(--ink);}
+.topbar .logo{font-weight:800;font-size:1.1rem;}
 .topbar .logo span{color:var(--gold);}
-.back-btn{background:none;border:none;font-size:1.3rem;cursor:pointer;padding:0.2rem;color:var(--ink);}
+.back-btn{background:none;border:none;font-size:1.4rem;cursor:pointer;padding:.2rem;color:var(--ink);line-height:1;}
 
-/* ── SCROLL CONTENT ── */
 .content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:1.2rem 1rem;}
-.content.pad-bottom{padding-bottom:calc(5rem + var(--safe-bottom));}
+.content.pb{padding-bottom:calc(5.5rem + var(--safe-bottom));}
 
-/* ── BOTTOM NAV ── */
-.bottom-nav{
-  display:flex;
-  background:var(--ink);
-  padding:0.5rem 0 calc(0.5rem + var(--safe-bottom));
-  flex-shrink:0;
-}
-.nav-item{
-  flex:1;display:flex;flex-direction:column;align-items:center;gap:0.2rem;
-  padding:0.4rem;cursor:pointer;background:none;border:none;
-  color:rgba(255,255,255,0.4);font-size:0.62rem;font-weight:600;
-  transition:color .2s;
-}
+.bottom-nav{display:flex;background:var(--ink);padding:.5rem 0 calc(.5rem + var(--safe-bottom));flex-shrink:0;}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:.2rem;padding:.4rem;cursor:pointer;background:none;border:none;color:rgba(255,255,255,.4);font-size:.62rem;font-weight:600;transition:color .2s;position:relative;}
 .nav-item.active{color:var(--gold);}
 .nav-icon{font-size:1.3rem;}
+.nav-plus{font-size:1.6rem;background:var(--orange);border-radius:50%;width:44px;height:44px;display:flex;align-items:center;justify-content:center;color:#fff;margin-bottom:2px;}
 
-/* ── BUTTONS ── */
-.btn{
-  display:flex;align-items:center;justify-content:center;gap:0.4rem;
-  width:100%;padding:0.85rem;border-radius:1rem;border:none;cursor:pointer;
-  font-size:0.95rem;font-weight:700;transition:opacity .15s,transform .15s;
-  min-height:50px;
-}
-.btn:active{opacity:0.8;transform:scale(0.98);}
+.btn{display:flex;align-items:center;justify-content:center;gap:.4rem;width:100%;padding:.85rem;border-radius:1rem;border:none;cursor:pointer;font-size:.95rem;font-weight:700;transition:opacity .15s,transform .15s;min-height:50px;}
+.btn:active{opacity:.8;transform:scale(.98);}
 .btn-primary{background:var(--orange);color:#fff;}
 .btn-gold{background:var(--gold);color:var(--ink);}
 .btn-outline{background:transparent;border:2px solid var(--ink);color:var(--ink);}
 .btn-ghost{background:var(--sand);color:var(--ink);}
 .btn-danger{background:var(--danger);color:#fff;}
-.btn-sm{padding:0.5rem 1rem;width:auto;font-size:0.82rem;border-radius:0.6rem;min-height:36px;}
+.btn-green{background:var(--green);color:#fff;}
 
-/* ── FORMS ── */
 .form-group{margin-bottom:1rem;}
-.form-label{font-size:0.8rem;font-weight:600;color:var(--muted);margin-bottom:0.4rem;display:block;}
-.form-input{
-  width:100%;padding:0.8rem 1rem;border-radius:0.9rem;
-  border:1.5px solid rgba(15,10,0,0.15);background:#fff;
-  font-size:0.95rem;color:var(--ink);outline:none;
-  transition:border-color .2s;
-}
+.form-label{font-size:.8rem;font-weight:600;color:var(--muted);margin-bottom:.4rem;display:block;}
+.form-input{width:100%;padding:.8rem 1rem;border-radius:.9rem;border:1.5px solid rgba(15,10,0,.15);background:#fff;font-size:.95rem;color:var(--ink);outline:none;transition:border-color .2s;}
 .form-input:focus{border-color:var(--gold);}
-.form-select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b5c3e' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 1rem center;padding-right:2.5rem;}
+.form-input-dark{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.15);color:var(--cream);}
+.form-input-dark::placeholder{color:rgba(255,255,255,.3);}
+.form-input-dark:focus{border-color:var(--gold);}
+.form-select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b5c3e' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 1rem center;padding-right:2.5rem;}
+.pw-wrap{position:relative;}
+.pw-wrap .form-input{padding-right:3rem;}
+.pw-toggle{position:absolute;right:.8rem;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:1.1rem;padding:.2rem;color:var(--muted);}
 
-/* ── CARDS ── */
-.card{background:#fff;border-radius:1.2rem;padding:1.2rem;border:1.5px solid rgba(15,10,0,0.08);margin-bottom:0.8rem;}
-.card-gold{background:linear-gradient(135deg,var(--green) 0%,var(--green-light) 100%);color:#fff;border:none;}
-.card-orange{background:linear-gradient(135deg,var(--orange) 0%,#e86520 100%);color:#fff;border:none;}
+.card{background:#fff;border-radius:1.2rem;padding:1.2rem;border:1.5px solid rgba(15,10,0,.08);margin-bottom:.8rem;}
+.card-green{background:linear-gradient(135deg,var(--green),var(--green-light));color:#fff;border:none;}
+.card-orange{background:linear-gradient(135deg,var(--orange),#e86520);color:#fff;border:none;}
+.card-gold{background:linear-gradient(135deg,#a06010,var(--gold));color:#fff;border:none;}
 
-/* ── BADGE ── */
-.badge{display:inline-flex;align-items:center;padding:0.2rem 0.6rem;border-radius:100px;font-size:0.68rem;font-weight:700;}
-.badge-green{background:rgba(45,158,95,0.15);color:var(--green);}
-.badge-orange{background:rgba(212,72,10,0.12);color:var(--orange);}
-.badge-gold{background:rgba(232,160,32,0.2);color:#a06010;}
-.badge-gray{background:rgba(107,92,62,0.1);color:var(--muted);}
+.badge{display:inline-flex;align-items:center;padding:.2rem .6rem;border-radius:100px;font-size:.68rem;font-weight:700;}
+.badge-green{background:rgba(45,158,95,.15);color:var(--green);}
+.badge-orange{background:rgba(212,72,10,.12);color:var(--orange);}
+.badge-gold{background:rgba(232,160,32,.2);color:#a06010;}
+.badge-gray{background:rgba(107,92,62,.1);color:var(--muted);}
 
-/* ── AVATAR ── */
-.avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.9rem;color:#fff;flex-shrink:0;}
-.av-orange{background:var(--orange);}
-.av-green{background:var(--green);}
-.av-gold{background:var(--gold);color:var(--ink);}
-.av-purple{background:#7c3aed;}
+.avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.9rem;color:#fff;flex-shrink:0;}
+.av-o{background:var(--orange);}.av-g{background:var(--green);}.av-gold{background:var(--gold);color:var(--ink);}.av-p{background:#7c3aed;}
 
-/* ── DIVIDER ── */
 .kente{height:4px;background:repeating-linear-gradient(90deg,var(--gold) 0 15px,var(--orange) 15px 30px,var(--green) 30px 45px,#b82020 45px 60px,var(--gold) 60px 75px);margin:1rem 0;border-radius:2px;}
+.section-title{font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:1.2rem 0 .6rem;}
 
-/* ── EMPTY STATE ── */
 .empty{text-align:center;padding:3rem 1rem;color:var(--muted);}
-.empty-icon{font-size:3rem;margin-bottom:0.8rem;}
-.empty h3{font-size:1rem;font-weight:700;margin-bottom:0.4rem;color:var(--ink);}
-.empty p{font-size:0.85rem;line-height:1.5;}
+.empty-icon{font-size:3rem;margin-bottom:.8rem;}
+.empty h3{font-size:1rem;font-weight:700;margin-bottom:.4rem;color:var(--ink);}
+.empty p{font-size:.85rem;line-height:1.5;}
 
-/* ── TOAST ── */
-#toast{
-  position:fixed;bottom:calc(6rem + var(--safe-bottom));left:1rem;right:1rem;
-  background:var(--ink);color:#fff;padding:0.8rem 1rem;border-radius:0.8rem;
-  font-size:0.88rem;font-weight:500;text-align:center;
-  transform:translateY(20px);opacity:0;transition:.3s;z-index:1000;pointer-events:none;
-}
+#toast{position:fixed;bottom:calc(6rem + var(--safe-bottom));left:1rem;right:1rem;background:var(--ink);color:#fff;padding:.8rem 1rem;border-radius:.8rem;font-size:.88rem;font-weight:500;text-align:center;transform:translateY(20px);opacity:0;transition:.3s;z-index:999;pointer-events:none;}
 #toast.show{transform:translateY(0);opacity:1;}
 #toast.success{background:var(--green);}
 #toast.error{background:var(--danger);}
 
-/* ── LOADER ── */
-.loader{display:flex;align-items:center;justify-content:center;padding:2rem;}
+.loader{display:flex;align-items:center;justify-content:center;padding:3rem;}
 .spinner{width:28px;height:28px;border:3px solid var(--sand);border-top-color:var(--orange);border-radius:50%;animation:spin .7s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
 
-/* ── MODAL ── */
-.modal-overlay{
-  display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);
-  z-index:200;align-items:flex-end;
-}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:flex-end;}
 .modal-overlay.open{display:flex;}
-.modal{
-  background:var(--cream);border-radius:1.5rem 1.5rem 0 0;
-  width:100%;padding:1.5rem 1rem calc(1.5rem + var(--safe-bottom));
-  max-height:85vh;overflow-y:auto;
-}
-.modal-handle{width:40px;height:4px;background:rgba(0,0,0,0.15);border-radius:2px;margin:0 auto 1.2rem;}
+.modal{background:var(--cream);border-radius:1.5rem 1.5rem 0 0;width:100%;padding:1.5rem 1rem calc(1.5rem + var(--safe-bottom));max-height:88vh;overflow-y:auto;}
+.modal-handle{width:40px;height:4px;background:rgba(0,0,0,.15);border-radius:2px;margin:0 auto 1.2rem;}
 .modal-title{font-size:1.1rem;font-weight:700;margin-bottom:1.2rem;}
 
-/* ── PROGRESS ── */
-.progress-wrap{background:rgba(255,255,255,0.2);border-radius:100px;height:6px;margin-top:0.8rem;}
+.progress-wrap{background:rgba(255,255,255,.2);border-radius:100px;height:6px;margin-top:.8rem;}
 .progress-fill{background:var(--gold-light);height:6px;border-radius:100px;transition:width .5s ease;}
 
-/* ── MEMBER ROW ── */
-.member-row{display:flex;align-items:center;gap:0.8rem;padding:0.8rem 0;border-bottom:1px solid rgba(0,0,0,0.05);}
+.member-row{display:flex;align-items:center;gap:.8rem;padding:.8rem 0;border-bottom:1px solid rgba(0,0,0,.05);}
 .member-row:last-child{border-bottom:none;}
 .member-info{flex:1;}
-.member-name{font-size:0.9rem;font-weight:600;}
-.member-sub{font-size:0.75rem;color:var(--muted);margin-top:0.1rem;}
+.member-name{font-size:.9rem;font-weight:600;}
+.member-sub{font-size:.75rem;color:var(--muted);margin-top:.1rem;}
 
-/* ── CHAT ── */
-.chat-messages{flex:1;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:0.6rem;}
-.msg{max-width:78%;padding:0.65rem 0.9rem;border-radius:1rem;font-size:0.88rem;line-height:1.4;}
-.msg-out{background:var(--orange);color:#fff;border-bottom-right-radius:0.2rem;align-self:flex-end;}
-.msg-in{background:#fff;border:1px solid rgba(0,0,0,0.08);border-bottom-left-radius:0.2rem;align-self:flex-start;}
-.msg-time{font-size:0.6rem;opacity:0.6;margin-top:0.2rem;text-align:right;}
-.chat-input-bar{
-  display:flex;gap:0.5rem;padding:0.7rem 1rem calc(0.7rem + var(--safe-bottom));
-  background:var(--cream);border-top:1px solid rgba(0,0,0,0.08);flex-shrink:0;
-}
-.chat-input{flex:1;padding:0.65rem 1rem;border-radius:1.5rem;border:1.5px solid rgba(0,0,0,0.12);background:#fff;font-size:0.9rem;outline:none;}
+.chat-messages{flex:1;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:.6rem;}
+.msg{max-width:78%;padding:.65rem .9rem;border-radius:1rem;font-size:.88rem;line-height:1.4;}
+.msg-out{background:var(--orange);color:#fff;border-bottom-right-radius:.2rem;align-self:flex-end;}
+.msg-in{background:#fff;border:1px solid rgba(0,0,0,.08);border-bottom-left-radius:.2rem;align-self:flex-start;}
+.msg-time{font-size:.6rem;opacity:.6;margin-top:.2rem;text-align:right;}
+.chat-input-bar{display:flex;gap:.5rem;padding:.7rem 1rem calc(.7rem + var(--safe-bottom));background:var(--cream);border-top:1px solid rgba(0,0,0,.08);flex-shrink:0;}
+.chat-input{flex:1;padding:.65rem 1rem;border-radius:1.5rem;border:1.5px solid rgba(0,0,0,.12);background:#fff;font-size:.9rem;outline:none;}
 .chat-send{width:42px;height:42px;border-radius:50%;background:var(--orange);border:none;color:#fff;font-size:1.1rem;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
 
-/* ── AUTH SCREEN ── */
+/* AUTH */
 #screen-auth{background:var(--ink);}
-.auth-header{padding:calc(3rem + var(--safe-top)) 1.5rem 2rem;text-align:center;}
-.auth-logo{font-size:2.5rem;margin-bottom:0.5rem;}
-.auth-title{font-size:1.8rem;font-weight:800;color:var(--cream);line-height:1.1;}
+.auth-header{padding:calc(2.5rem + var(--safe-top)) 1.5rem 1.5rem;text-align:center;}
+.auth-logo{font-size:2.2rem;margin-bottom:.4rem;}
+.auth-title{font-size:1.7rem;font-weight:800;color:var(--cream);}
 .auth-title span{color:var(--gold);}
-.auth-sub{color:rgba(253,246,227,0.6);font-size:0.88rem;margin-top:0.5rem;}
-.auth-body{flex:1;background:var(--cream);border-radius:1.8rem 1.8rem 0 0;padding:1.8rem 1.2rem;overflow-y:auto;}
-.auth-tabs{display:flex;background:var(--sand);border-radius:0.8rem;padding:0.25rem;margin-bottom:1.5rem;}
-.auth-tab{flex:1;padding:0.6rem;border:none;background:none;border-radius:0.6rem;font-weight:700;font-size:0.88rem;cursor:pointer;color:var(--muted);transition:.2s;}
-.auth-tab.active{background:#fff;color:var(--ink);box-shadow:0 2px 8px rgba(0,0,0,0.08);}
+.auth-sub{color:rgba(253,246,227,.5);font-size:.85rem;margin-top:.3rem;}
+.auth-body{flex:1;background:var(--cream);border-radius:1.8rem 1.8rem 0 0;padding:1.5rem 1.2rem;overflow-y:auto;}
+.auth-tabs{display:flex;background:var(--sand);border-radius:.8rem;padding:.25rem;margin-bottom:1.3rem;}
+.auth-tab{flex:1;padding:.55rem;border:none;background:none;border-radius:.6rem;font-weight:700;font-size:.88rem;cursor:pointer;color:var(--muted);transition:.2s;}
+.auth-tab.active{background:#fff;color:var(--ink);box-shadow:0 2px 8px rgba(0,0,0,.08);}
 
-/* ── TONTINE DETAIL ── */
-.detail-header{background:linear-gradient(135deg,var(--green),var(--green-light));padding:1.5rem 1rem;color:#fff;}
-.detail-amount{font-size:2.2rem;font-weight:800;color:var(--gold-light);}
-.detail-tabs{display:flex;border-bottom:2px solid var(--sand);background:var(--cream);}
-.detail-tab{flex:1;padding:0.8rem 0;border:none;background:none;font-size:0.82rem;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;}
-.detail-tab.active{color:var(--orange);border-bottom-color:var(--orange);}
-.tab-content{display:none;}
-.tab-content.active{display:block;}
-
-/* ── SETUP SCREEN ── */
-#screen-setup .content{background:var(--ink);}
+/* SETUP */
 .setup-step{display:none;animation:fadeIn .3s ease;}
 .setup-step.active{display:block;}
-.setup-num{font-size:0.75rem;font-weight:700;color:var(--gold);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.5rem;}
-.setup-title{font-size:1.5rem;font-weight:800;color:var(--cream);margin-bottom:0.4rem;}
-.setup-sub{color:rgba(253,246,227,0.6);font-size:0.88rem;margin-bottom:1.5rem;}
-.setup-card{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:1rem;padding:1rem;margin-bottom:0.8rem;cursor:pointer;transition:.2s;}
-.setup-card.selected{border-color:var(--gold);background:rgba(232,160,32,0.1);}
-.setup-card-title{font-weight:700;color:var(--cream);font-size:0.95rem;}
-.setup-card-sub{color:rgba(253,246,227,0.5);font-size:0.8rem;margin-top:0.2rem;}
-.step-dots{display:flex;gap:0.4rem;justify-content:center;margin-bottom:1.5rem;}
-.step-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.2);}
-.step-dot.active{background:var(--gold);width:18px;border-radius:3px;}
+.setup-num{font-size:.72rem;font-weight:700;color:var(--gold);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.4rem;}
+.setup-title{font-size:1.4rem;font-weight:800;color:var(--cream);margin-bottom:.3rem;}
+.setup-sub{color:rgba(253,246,227,.6);font-size:.85rem;margin-bottom:1.2rem;}
+.setup-card{background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.1);border-radius:1rem;padding:1rem;margin-bottom:.7rem;cursor:pointer;transition:.2s;}
+.setup-card.selected{border-color:var(--gold);background:rgba(232,160,32,.12);}
+.setup-card-title{font-weight:700;color:var(--cream);font-size:.92rem;}
+.setup-card-sub{color:rgba(253,246,227,.5);font-size:.78rem;margin-top:.2rem;}
+.step-dots{display:flex;gap:.4rem;justify-content:center;margin-bottom:1.2rem;}
+.step-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.2);transition:.3s;}
+.step-dot.active{background:var(--gold);width:20px;border-radius:3px;}
 
-@keyframes fadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+/* DETAIL */
+.detail-header{padding:1.2rem 1rem;color:#fff;flex-shrink:0;}
+.detail-amount{font-size:2rem;font-weight:800;color:var(--gold-light);}
+.detail-tabs{display:flex;border-bottom:2px solid var(--sand);background:var(--cream);flex-shrink:0;}
+.detail-tab{flex:1;padding:.75rem 0;border:none;background:none;font-size:.8rem;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2.5px solid transparent;margin-bottom:-2px;transition:.2s;}
+.detail-tab.active{color:var(--orange);border-bottom-color:var(--orange);}
+.tab-panel{display:none;flex:1;overflow-y:auto;padding:.8rem 1rem calc(5rem + var(--safe-bottom));}
+.tab-panel.active{display:block;}
 
-/* ── NOTIF BADGE ── */
-.notif-dot{width:8px;height:8px;background:var(--orange);border-radius:50%;position:absolute;top:4px;right:4px;}
-.nav-item{position:relative;}
+/* CODE CARD */
+.code-card{background:var(--ink);border-radius:1.2rem;padding:1.2rem;text-align:center;margin-bottom:1rem;}
+.code-label{font-size:.68rem;color:var(--gold);letter-spacing:.12em;text-transform:uppercase;margin-bottom:.5rem;}
+.code-value{font-size:2.4rem;font-weight:800;letter-spacing:.25em;color:#fff;margin-bottom:.5rem;}
+.code-hint{font-size:.72rem;color:rgba(255,255,255,.4);}
 
-/* ── SECTION TITLE ── */
-.section-title{font-size:0.72rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin:1.2rem 0 0.6rem;}
-
-/* SUPABASE CONFIG SCREEN */
-#screen-config{background:var(--ink);}
-.config-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem 1.5rem;}
-.config-icon{font-size:3rem;margin-bottom:1rem;}
-.config-title{font-size:1.4rem;font-weight:800;color:var(--cream);text-align:center;margin-bottom:0.4rem;}
-.config-sub{color:rgba(253,246,227,0.5);font-size:0.85rem;text-align:center;margin-bottom:2rem;line-height:1.5;}
-.config-input{width:100%;padding:0.9rem 1rem;border-radius:0.9rem;border:1.5px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.06);color:var(--cream);font-size:0.88rem;outline:none;margin-bottom:0.8rem;}
-.config-input::placeholder{color:rgba(255,255,255,0.3);}
-.config-input:focus{border-color:var(--gold);}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
 </style>
 </head>
 <body>
 <div id="app">
 
-<!-- ══════════════════════════════════════
-     SCREEN: CONFIG SUPABASE
-═══════════════════════════════════════ -->
-<div id="screen-config" class="screen active">
-  <div class="config-body">
-    <div class="config-icon">🔑</div>
-    <div class="config-title">Configuration Supabase</div>
-    <div class="config-sub">Entre tes clés Supabase pour connecter l'app à ta base de données. Tu peux les trouver dans ton dashboard Supabase → Settings → API.</div>
-    <input class="config-input" id="sb-url" placeholder="URL Supabase (https://xxx.supabase.co)" type="url">
-    <input class="config-input" id="sb-key" placeholder="Anon Key (eyJh...)" type="text">
-    <button class="btn btn-gold" onclick="initSupabase()">Connecter →</button>
-    <p style="color:rgba(255,255,255,0.25);font-size:0.72rem;margin-top:1rem;text-align:center;">Ces clés sont stockées localement sur ton appareil</p>
-  </div>
-</div>
-
-<!-- ══════════════════════════════════════
-     SCREEN: AUTH
-═══════════════════════════════════════ -->
+<!-- ══ AUTH ══ -->
 <div id="screen-auth" class="screen">
   <div class="auth-header">
     <div class="auth-logo">🏦</div>
@@ -270,7 +181,10 @@ input,button,select,textarea{font-family:inherit;-webkit-appearance:none;appeara
       </div>
       <div class="form-group">
         <label class="form-label">Mot de passe</label>
-        <input class="form-input" id="login-pwd" type="password" placeholder="••••••••">
+        <div class="pw-wrap">
+          <input class="form-input" id="login-pwd" type="password" placeholder="••••••••">
+          <button class="pw-toggle" onclick="togglePw('login-pwd',this)" type="button">👁</button>
+        </div>
       </div>
       <button class="btn btn-primary" onclick="login()">Se connecter</button>
     </div>
@@ -278,291 +192,227 @@ input,button,select,textarea{font-family:inherit;-webkit-appearance:none;appeara
     <div id="tab-signup" style="display:none">
       <div class="form-group">
         <label class="form-label">Prénom & Nom</label>
-        <input class="form-input" id="signup-name" type="text" placeholder="Ex: Ama Kouassi">
+        <input class="form-input" id="su-name" type="text" placeholder="Ex: Ama Kouassi">
       </div>
       <div class="form-group">
         <label class="form-label">Téléphone</label>
-        <input class="form-input" id="signup-phone" type="tel" placeholder="+225 07 00 00 00 00">
+        <input class="form-input" id="su-phone" type="tel" placeholder="+225 07 00 00 00 00">
       </div>
       <div class="form-group">
         <label class="form-label">Email</label>
-        <input class="form-input" id="signup-email" type="email" placeholder="ton@email.com">
+        <input class="form-input" id="su-email" type="email" placeholder="ton@email.com">
       </div>
       <div class="form-group">
         <label class="form-label">Mot de passe</label>
-        <input class="form-input" id="signup-pwd" type="password" placeholder="Min. 6 caractères">
+        <div class="pw-wrap">
+          <input class="form-input" id="su-pwd" type="password" placeholder="Min. 6 caractères">
+          <button class="pw-toggle" onclick="togglePw('su-pwd',this)" type="button">👁</button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Confirmer le mot de passe</label>
+        <div class="pw-wrap">
+          <input class="form-input" id="su-pwd2" type="password" placeholder="Répète le mot de passe">
+          <button class="pw-toggle" onclick="togglePw('su-pwd2',this)" type="button">👁</button>
+        </div>
       </div>
       <button class="btn btn-primary" onclick="signup()">Créer mon compte</button>
     </div>
   </div>
 </div>
 
-<!-- ══════════════════════════════════════
-     SCREEN: HOME (Dashboard)
-═══════════════════════════════════════ -->
+<!-- ══ HOME ══ -->
 <div id="screen-home" class="screen">
   <div class="topbar">
     <div class="logo">🏦 Tontine<span>Digitale</span></div>
-    <button class="btn-sm btn-ghost" style="width:auto;padding:0.4rem 0.8rem;font-size:0.8rem;" onclick="showScreen('screen-notifications')">🔔</button>
+    <button onclick="showScreen('screen-notifs')" style="background:none;border:none;font-size:1.4rem;cursor:pointer;">🔔</button>
   </div>
-  <div class="content pad-bottom" id="home-content">
-    <div class="loader"><div class="spinner"></div></div>
-  </div>
-  <div class="bottom-nav">
+  <div class="content pb" id="home-content"><div class="loader"><div class="spinner"></div></div></div>
+  <div class="bottom-nav" id="nav-home">
     <button class="nav-item active" onclick="navTo('home')"><span class="nav-icon">🏠</span>Accueil</button>
     <button class="nav-item" onclick="navTo('tontines')"><span class="nav-icon">👥</span>Tontines</button>
-    <button class="nav-item" onclick="navTo('add')"><span class="nav-icon" style="font-size:1.8rem;background:var(--orange);border-radius:50%;width:42px;height:42px;display:flex;align-items:center;justify-content:center;color:#fff;">+</span></button>
+    <button class="nav-item" onclick="navTo('add')"><div class="nav-plus">+</div></button>
     <button class="nav-item" onclick="navTo('activite')"><span class="nav-icon">📊</span>Activité</button>
     <button class="nav-item" onclick="navTo('profil')"><span class="nav-icon">👤</span>Profil</button>
   </div>
 </div>
 
-<!-- ══════════════════════════════════════
-     SCREEN: TONTINES LIST
-═══════════════════════════════════════ -->
+<!-- ══ TONTINES ══ -->
 <div id="screen-tontines" class="screen">
   <div class="topbar">
     <div class="topbar-title">Mes Tontines</div>
-    <button class="btn-sm btn-primary" style="width:auto;" onclick="showModal('modal-join')">Rejoindre</button>
+    <button class="btn" style="width:auto;padding:.45rem 1rem;font-size:.82rem;background:var(--orange);color:#fff;border-radius:.7rem;min-height:36px;" onclick="showModal('modal-join')">🔗 Rejoindre</button>
   </div>
-  <div class="content pad-bottom" id="tontines-content">
-    <div class="loader"><div class="spinner"></div></div>
-  </div>
+  <div class="content pb" id="tontines-content"><div class="loader"><div class="spinner"></div></div></div>
   <div class="bottom-nav">
     <button class="nav-item" onclick="navTo('home')"><span class="nav-icon">🏠</span>Accueil</button>
     <button class="nav-item active" onclick="navTo('tontines')"><span class="nav-icon">👥</span>Tontines</button>
-    <button class="nav-item" onclick="navTo('add')"><span class="nav-icon" style="font-size:1.8rem;background:var(--orange);border-radius:50%;width:42px;height:42px;display:flex;align-items:center;justify-content:center;color:#fff;">+</span></button>
+    <button class="nav-item" onclick="navTo('add')"><div class="nav-plus">+</div></button>
     <button class="nav-item" onclick="navTo('activite')"><span class="nav-icon">📊</span>Activité</button>
     <button class="nav-item" onclick="navTo('profil')"><span class="nav-icon">👤</span>Profil</button>
   </div>
 </div>
 
-<!-- ══════════════════════════════════════
-     SCREEN: CRÉER TONTINE (wizard)
-═══════════════════════════════════════ -->
-<div id="screen-setup" class="screen">
-  <div class="topbar" style="background:var(--ink);border-color:rgba(255,255,255,0.1);">
+<!-- ══ CRÉER TONTINE ══ -->
+<div id="screen-add" class="screen">
+  <div class="topbar" style="background:var(--ink);border-color:rgba(255,255,255,.1);">
     <button class="back-btn" style="color:var(--cream);" onclick="navTo('home')">✕</button>
     <div class="topbar-title" style="color:var(--cream);">Nouvelle tontine</div>
   </div>
   <div class="content" style="background:var(--ink);">
     <div class="step-dots" id="step-dots"></div>
-    <!-- STEP 1 -->
     <div class="setup-step active" id="step-1">
       <div class="setup-num">Étape 1 / 4</div>
       <div class="setup-title">Nom du groupe</div>
       <div class="setup-sub">Comment s'appelle votre tontine ?</div>
-      <div class="form-group">
-        <input class="form-input" id="new-name" placeholder="Ex: Famille Kouassi, Amies du marché..." style="background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.15);color:var(--cream);">
-      </div>
-      <div class="form-group">
-        <label class="form-label" style="color:rgba(255,255,255,0.5);">Description (optionnel)</label>
-        <input class="form-input" id="new-desc" placeholder="Objectif, règles spéciales..." style="background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.15);color:var(--cream);">
-      </div>
+      <div class="form-group"><input class="form-input form-input-dark" id="new-name" placeholder="Ex: Famille Kouassi, Amies du marché..."></div>
+      <div class="form-group"><label class="form-label" style="color:rgba(255,255,255,.5);">Description (optionnel)</label><input class="form-input form-input-dark" id="new-desc" placeholder="Objectif, règles spéciales..."></div>
       <button class="btn btn-gold" onclick="nextStep(1)">Suivant →</button>
     </div>
-    <!-- STEP 2 -->
     <div class="setup-step" id="step-2">
       <div class="setup-num">Étape 2 / 4</div>
       <div class="setup-title">Montant & Fréquence</div>
       <div class="setup-sub">Combien chaque membre cotise et quand ?</div>
-      <div class="form-group">
-        <label class="form-label" style="color:rgba(255,255,255,0.5);">Montant de cotisation (FCFA)</label>
-        <input class="form-input" id="new-amount" type="number" placeholder="Ex: 25000" style="background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.15);color:var(--cream);">
-      </div>
-      <div class="form-group">
-        <label class="form-label" style="color:rgba(255,255,255,0.5);">Fréquence</label>
-        <select class="form-input form-select" id="new-freq" style="background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.15);color:var(--cream);">
+      <div class="form-group"><label class="form-label" style="color:rgba(255,255,255,.5);">Montant (FCFA)</label><input class="form-input form-input-dark" id="new-amount" type="number" placeholder="Ex: 25000"></div>
+      <div class="form-group"><label class="form-label" style="color:rgba(255,255,255,.5);">Fréquence</label>
+        <select class="form-input form-input-dark form-select" id="new-freq">
           <option value="hebdomadaire">Hebdomadaire</option>
-          <option value="bimensuel">Bimensuel (2x/mois)</option>
+          <option value="bimensuel">Bimensuel</option>
           <option value="mensuel" selected>Mensuel</option>
           <option value="trimestriel">Trimestriel</option>
         </select>
       </div>
-      <div class="form-group">
-        <label class="form-label" style="color:rgba(255,255,255,0.5);">Nombre de membres max</label>
-        <input class="form-input" id="new-max" type="number" placeholder="Ex: 10" min="2" max="50" style="background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.15);color:var(--cream);">
-      </div>
-      <div style="display:flex;gap:0.8rem;">
-        <button class="btn btn-ghost" onclick="prevStep(2)" style="flex:0.4;">← Retour</button>
-        <button class="btn btn-gold" onclick="nextStep(2)">Suivant →</button>
-      </div>
+      <div class="form-group"><label class="form-label" style="color:rgba(255,255,255,.5);">Membres max</label><input class="form-input form-input-dark" id="new-max" type="number" placeholder="Ex: 10" min="2" max="50"></div>
+      <div style="display:flex;gap:.8rem;"><button class="btn btn-ghost" onclick="goStep(1)" style="flex:.4;">← Retour</button><button class="btn btn-gold" onclick="nextStep(2)">Suivant →</button></div>
     </div>
-    <!-- STEP 3 -->
     <div class="setup-step" id="step-3">
       <div class="setup-num">Étape 3 / 4</div>
       <div class="setup-title">Ordre des tours</div>
       <div class="setup-sub">Comment décider qui reçoit en premier ?</div>
-      <div class="setup-card selected" id="order-random" onclick="selectOrder('aleatoire')">
-        <div class="setup-card-title">🎲 Tirage au sort</div>
-        <div class="setup-card-sub">L'ordre est défini aléatoirement au démarrage</div>
-      </div>
-      <div class="setup-card" id="order-manual" onclick="selectOrder('manuel')">
-        <div class="setup-card-title">✍️ Manuel</div>
-        <div class="setup-card-sub">Tu définis toi-même l'ordre des membres</div>
-      </div>
-      <div class="setup-card" id="order-anciennete" onclick="selectOrder('anciennete')">
-        <div class="setup-card-title">📅 Ancienneté</div>
-        <div class="setup-card-sub">Le premier inscrit reçoit en premier</div>
-      </div>
-      <div style="display:flex;gap:0.8rem;margin-top:1rem;">
-        <button class="btn btn-ghost" onclick="prevStep(3)" style="flex:0.4;">← Retour</button>
-        <button class="btn btn-gold" onclick="nextStep(3)">Suivant →</button>
-      </div>
+      <div class="setup-card selected" id="ord-aleatoire" onclick="selOrder('aleatoire')"><div class="setup-card-title">🎲 Tirage au sort</div><div class="setup-card-sub">L'ordre est défini aléatoirement</div></div>
+      <div class="setup-card" id="ord-manuel" onclick="selOrder('manuel')"><div class="setup-card-title">✍️ Manuel</div><div class="setup-card-sub">Tu définis toi-même l'ordre</div></div>
+      <div class="setup-card" id="ord-anciennete" onclick="selOrder('anciennete')"><div class="setup-card-title">📅 Ancienneté</div><div class="setup-card-sub">Le premier inscrit reçoit en premier</div></div>
+      <div style="display:flex;gap:.8rem;margin-top:1rem;"><button class="btn btn-ghost" onclick="goStep(2)" style="flex:.4;">← Retour</button><button class="btn btn-gold" onclick="nextStep(3)">Suivant →</button></div>
     </div>
-    <!-- STEP 4 -->
     <div class="setup-step" id="step-4">
       <div class="setup-num">Étape 4 / 4</div>
       <div class="setup-title">Récapitulatif</div>
-      <div class="setup-sub">Vérifie les informations avant de créer</div>
-      <div id="recap-card" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);border-radius:1rem;padding:1.2rem;margin-bottom:1.2rem;"></div>
+      <div class="setup-sub">Vérifie avant de créer</div>
+      <div id="recap-card" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.15);border-radius:1rem;padding:1.2rem;margin-bottom:1.2rem;"></div>
       <button class="btn btn-gold" onclick="createTontine()">✅ Créer la tontine</button>
-      <button class="btn btn-ghost" onclick="prevStep(4)" style="margin-top:0.8rem;">← Modifier</button>
+      <button class="btn btn-ghost" onclick="goStep(3)" style="margin-top:.8rem;">← Modifier</button>
     </div>
   </div>
 </div>
 
-<!-- ══════════════════════════════════════
-     SCREEN: TONTINE DETAIL
-═══════════════════════════════════════ -->
+<!-- ══ DETAIL TONTINE ══ -->
 <div id="screen-detail" class="screen">
   <div class="topbar">
     <button class="back-btn" onclick="navTo('tontines')">←</button>
     <div class="topbar-title" id="detail-title">Tontine</div>
-    <button class="btn-sm btn-ghost" style="width:auto;" onclick="showModal('modal-invite')">+Inviter</button>
+    <button onclick="showModal('modal-invite')" style="background:var(--green);color:#fff;border:none;border-radius:.7rem;padding:.4rem .8rem;font-size:.8rem;font-weight:700;cursor:pointer;">+Inviter</button>
   </div>
-  <div id="detail-header" class="detail-header">
-    <div style="font-size:0.75rem;opacity:0.7;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.3rem;" id="detail-freq"></div>
-    <div class="detail-amount" id="detail-amount"></div>
-    <div style="font-size:0.85rem;opacity:0.8;margin-top:0.3rem;" id="detail-members-count"></div>
-    <div class="progress-wrap" id="detail-progress-wrap">
-      <div class="progress-fill" id="detail-progress"></div>
-    </div>
-    <div style="font-size:0.72rem;opacity:0.6;margin-top:0.4rem;" id="detail-progress-label"></div>
+  <div id="detail-header" class="detail-header" style="background:linear-gradient(135deg,var(--green),var(--green-light));">
+    <div style="font-size:.72rem;opacity:.7;text-transform:uppercase;letter-spacing:.08em;" id="d-freq"></div>
+    <div class="detail-amount" id="d-amount"></div>
+    <div style="font-size:.82rem;opacity:.8;margin-top:.2rem;" id="d-members"></div>
+    <div class="progress-wrap"><div class="progress-fill" id="d-progress"></div></div>
+    <div style="font-size:.7rem;opacity:.6;margin-top:.3rem;" id="d-progress-label"></div>
   </div>
   <div class="detail-tabs">
-    <button class="detail-tab active" onclick="switchDetailTab('membres')">Membres</button>
-    <button class="detail-tab" onclick="switchDetailTab('paiements')">Paiements</button>
-    <button class="detail-tab" onclick="switchDetailTab('chat')">Chat 💬</button>
-    <button class="detail-tab" onclick="switchDetailTab('infos')">Infos</button>
+    <button class="detail-tab active" onclick="dTab('membres')">Membres</button>
+    <button class="detail-tab" onclick="dTab('paiements')">Paiements</button>
+    <button class="detail-tab" onclick="dTab('chat')">Chat 💬</button>
+    <button class="detail-tab" onclick="dTab('code')">Code 🔑</button>
   </div>
-  <!-- TAB: MEMBRES -->
-  <div class="tab-content active" id="tab-membres" style="flex:1;overflow-y:auto;padding:0.5rem 1rem 5rem;">
-    <div id="membres-list"></div>
-  </div>
-  <!-- TAB: PAIEMENTS -->
-  <div class="tab-content" id="tab-paiements" style="flex:1;overflow-y:auto;padding:0.5rem 1rem 5rem;">
-    <button class="btn btn-primary" style="margin:0.8rem 0;" onclick="showModal('modal-paiement')">💰 Enregistrer mon paiement</button>
+  <div class="tab-panel active" id="tp-membres"><div id="membres-list"></div></div>
+  <div class="tab-panel" id="tp-paiements">
+    <button class="btn btn-primary" style="margin-bottom:.8rem;" onclick="showModal('modal-pay')">💰 Enregistrer mon paiement</button>
     <div id="paiements-list"></div>
   </div>
-  <!-- TAB: CHAT -->
-  <div class="tab-content" id="tab-chat" style="display:flex;flex-direction:column;height:calc(100vh - 280px);">
+  <div class="tab-panel" id="tp-chat" style="display:flex;flex-direction:column;padding:0;height:calc(100vh - 280px);">
     <div class="chat-messages" id="chat-messages"></div>
     <div class="chat-input-bar">
-      <input class="chat-input" id="chat-input" placeholder="Message..." onkeydown="if(event.key==='Enter')sendMessage()">
-      <button class="chat-send" onclick="sendMessage()">➤</button>
+      <input class="chat-input" id="chat-input" placeholder="Message..." onkeydown="if(event.key==='Enter')sendMsg()">
+      <button class="chat-send" onclick="sendMsg()">➤</button>
     </div>
   </div>
-  <!-- TAB: INFOS -->
-  <div class="tab-content" id="tab-infos" style="flex:1;overflow-y:auto;padding:1rem 1rem 5rem;">
-    <div id="infos-content"></div>
+  <div class="tab-panel" id="tp-code">
+    <div class="code-card">
+      <div class="code-label">Code d'invitation</div>
+      <div class="code-value" id="code-display">---</div>
+      <div class="code-hint">Partage ce code pour inviter des membres</div>
+    </div>
+    <button class="btn btn-primary" onclick="shareCode()">📤 Partager le code</button>
+    <div style="margin-top:1.5rem;" id="infos-extra"></div>
   </div>
 </div>
 
-<!-- ══════════════════════════════════════
-     SCREEN: ACTIVITÉ
-═══════════════════════════════════════ -->
+<!-- ══ ACTIVITÉ ══ -->
 <div id="screen-activite" class="screen">
-  <div class="topbar">
-    <div class="topbar-title">Activité</div>
-  </div>
-  <div class="content pad-bottom" id="activite-content">
-    <div class="loader"><div class="spinner"></div></div>
-  </div>
+  <div class="topbar"><div class="topbar-title">Activité</div></div>
+  <div class="content pb" id="activite-content"><div class="loader"><div class="spinner"></div></div></div>
   <div class="bottom-nav">
     <button class="nav-item" onclick="navTo('home')"><span class="nav-icon">🏠</span>Accueil</button>
     <button class="nav-item" onclick="navTo('tontines')"><span class="nav-icon">👥</span>Tontines</button>
-    <button class="nav-item" onclick="navTo('add')"><span class="nav-icon" style="font-size:1.8rem;background:var(--orange);border-radius:50%;width:42px;height:42px;display:flex;align-items:center;justify-content:center;color:#fff;">+</span></button>
+    <button class="nav-item" onclick="navTo('add')"><div class="nav-plus">+</div></button>
     <button class="nav-item active" onclick="navTo('activite')"><span class="nav-icon">📊</span>Activité</button>
     <button class="nav-item" onclick="navTo('profil')"><span class="nav-icon">👤</span>Profil</button>
   </div>
 </div>
 
-<!-- ══════════════════════════════════════
-     SCREEN: PROFIL
-═══════════════════════════════════════ -->
+<!-- ══ PROFIL ══ -->
 <div id="screen-profil" class="screen">
-  <div class="topbar">
-    <div class="topbar-title">Mon Profil</div>
-    <button class="btn-sm btn-ghost" style="width:auto;" onclick="logout()">Déconnexion</button>
-  </div>
-  <div class="content pad-bottom" id="profil-content">
-    <div class="loader"><div class="spinner"></div></div>
-  </div>
+  <div class="topbar"><div class="topbar-title">Mon Profil</div></div>
+  <div class="content pb" id="profil-content"><div class="loader"><div class="spinner"></div></div></div>
   <div class="bottom-nav">
     <button class="nav-item" onclick="navTo('home')"><span class="nav-icon">🏠</span>Accueil</button>
     <button class="nav-item" onclick="navTo('tontines')"><span class="nav-icon">👥</span>Tontines</button>
-    <button class="nav-item" onclick="navTo('add')"><span class="nav-icon" style="font-size:1.8rem;background:var(--orange);border-radius:50%;width:42px;height:42px;display:flex;align-items:center;justify-content:center;color:#fff;">+</span></button>
+    <button class="nav-item" onclick="navTo('add')"><div class="nav-plus">+</div></button>
     <button class="nav-item" onclick="navTo('activite')"><span class="nav-icon">📊</span>Activité</button>
     <button class="nav-item active" onclick="navTo('profil')"><span class="nav-icon">👤</span>Profil</button>
   </div>
 </div>
 
-<!-- ══════════════════════════════════════
-     SCREEN: NOTIFICATIONS
-═══════════════════════════════════════ -->
-<div id="screen-notifications" class="screen">
-  <div class="topbar">
-    <button class="back-btn" onclick="navTo('home')">←</button>
-    <div class="topbar-title">Notifications</div>
-  </div>
-  <div class="content" id="notif-content">
-    <div class="loader"><div class="spinner"></div></div>
-  </div>
+<!-- ══ NOTIFS ══ -->
+<div id="screen-notifs" class="screen">
+  <div class="topbar"><button class="back-btn" onclick="navTo('home')">←</button><div class="topbar-title">Notifications</div></div>
+  <div class="content" id="notifs-content"><div class="loader"><div class="spinner"></div></div></div>
 </div>
 
-<!-- ══════════════════════════════════════
-     MODALS
-═══════════════════════════════════════ -->
-<!-- Modal: Rejoindre -->
+<!-- MODAL: JOIN -->
 <div class="modal-overlay" id="modal-join">
   <div class="modal">
     <div class="modal-handle"></div>
     <div class="modal-title">Rejoindre une tontine</div>
-    <div class="form-group">
-      <label class="form-label">Code d'invitation</label>
-      <input class="form-input" id="join-code" placeholder="Ex: ABC123" style="text-transform:uppercase;letter-spacing:0.15em;font-size:1.2rem;text-align:center;">
-    </div>
-    <button class="btn btn-primary" onclick="joinTontine()">Rejoindre</button>
-    <button class="btn btn-ghost" style="margin-top:0.6rem;" onclick="closeModal('modal-join')">Annuler</button>
+    <div class="form-group"><label class="form-label">Code d'invitation</label><input class="form-input" id="join-code" placeholder="Ex: ABC123" style="text-transform:uppercase;letter-spacing:.15em;font-size:1.3rem;text-align:center;"></div>
+    <button class="btn btn-primary" onclick="joinTontine()">Rejoindre →</button>
+    <button class="btn btn-ghost" style="margin-top:.6rem;" onclick="closeModal('modal-join')">Annuler</button>
   </div>
 </div>
 
-<!-- Modal: Inviter -->
+<!-- MODAL: INVITE -->
 <div class="modal-overlay" id="modal-invite">
   <div class="modal">
     <div class="modal-handle"></div>
     <div class="modal-title">Inviter des membres</div>
-    <div id="invite-code-display" style="background:var(--sand);border-radius:1rem;padding:1.2rem;text-align:center;margin-bottom:1rem;">
-      <div style="font-size:0.75rem;color:var(--muted);margin-bottom:0.4rem;">CODE D'INVITATION</div>
-      <div style="font-size:2rem;font-weight:800;letter-spacing:0.2em;color:var(--ink);" id="invite-code-text">---</div>
+    <div class="code-card" style="margin-bottom:1rem;">
+      <div class="code-label">Code d'invitation</div>
+      <div class="code-value" id="modal-code">---</div>
+      <div class="code-hint">Partage ce code à tes futurs membres</div>
     </div>
-    <button class="btn btn-primary" onclick="shareCode()">📤 Partager le code</button>
-    <button class="btn btn-ghost" style="margin-top:0.6rem;" onclick="closeModal('modal-invite')">Fermer</button>
+    <button class="btn btn-primary" onclick="shareCode()">📤 Partager</button>
+    <button class="btn btn-ghost" style="margin-top:.6rem;" onclick="closeModal('modal-invite')">Fermer</button>
   </div>
 </div>
 
-<!-- Modal: Paiement -->
-<div class="modal-overlay" id="modal-paiement">
+<!-- MODAL: PAIEMENT -->
+<div class="modal-overlay" id="modal-pay">
   <div class="modal">
     <div class="modal-handle"></div>
     <div class="modal-title">💰 Enregistrer un paiement</div>
-    <div class="form-group">
-      <label class="form-label">Montant (FCFA)</label>
-      <input class="form-input" id="pay-amount" type="number" placeholder="0">
-    </div>
-    <div class="form-group">
-      <label class="form-label">Mode de paiement</label>
+    <div class="form-group"><label class="form-label">Montant (FCFA)</label><input class="form-input" id="pay-amount" type="number"></div>
+    <div class="form-group"><label class="form-label">Mode de paiement</label>
       <select class="form-input form-select" id="pay-mode">
         <option value="especes">Espèces</option>
         <option value="orange_money">Orange Money</option>
@@ -571,665 +421,452 @@ input,button,select,textarea{font-family:inherit;-webkit-appearance:none;appeara
         <option value="moov_money">Moov Money</option>
       </select>
     </div>
-    <div class="form-group">
-      <label class="form-label">Note (optionnel)</label>
-      <input class="form-input" id="pay-note" placeholder="Ex: paiement mois de janvier">
-    </div>
-    <button class="btn btn-primary" onclick="recordPayment()">Confirmer le paiement</button>
-    <button class="btn btn-ghost" style="margin-top:0.6rem;" onclick="closeModal('modal-paiement')">Annuler</button>
+    <div class="form-group"><label class="form-label">Note (optionnel)</label><input class="form-input" id="pay-note" placeholder="Ex: paiement janvier"></div>
+    <button class="btn btn-primary" onclick="recordPay()">Confirmer</button>
+    <button class="btn btn-ghost" style="margin-top:.6rem;" onclick="closeModal('modal-pay')">Annuler</button>
   </div>
 </div>
 
-<!-- TOAST -->
 <div id="toast"></div>
 
 <script>
-// ══════════════════════════════════════════
-// STATE & SUPABASE
-// ══════════════════════════════════════════
-let sb = null;
-let currentUser = null;
-let currentProfile = null;
-let currentTontine = null;
-let currentStep = 1;
-let selectedOrder = 'aleatoire';
-let newTontineData = {};
-let chatSubscription = null;
+// ════════════════════════════════════════
+// SUPABASE — clés intégrées
+// ════════════════════════════════════════
+const SB_URL = 'https://flpzpezjmdveercsqnsh.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZscHpwZXpqbWR2ZWVyY3NxbnNoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5NTA3MjcsImV4cCI6MjA5NjUyNjcyN30.sGJ87BfDUYdFxmZpAjCgeX092Tss70jFiijqggJido4';
+const sb = supabase.createClient(SB_URL, SB_KEY);
 
-const STORAGE_URL_KEY = 'td_sb_url';
-const STORAGE_KEY_KEY = 'td_sb_key';
+let user = null, profile = null, curTontine = null, chatSub = null;
+let step = 1, selOrd = 'aleatoire', newT = {};
 
-// ── Init
-window.addEventListener('DOMContentLoaded', () => {
-  const url = localStorage.getItem(STORAGE_URL_KEY);
-  const key = localStorage.getItem(STORAGE_KEY_KEY);
-  if (url && key) {
-    try {
-      sb = supabase.createClient(url, key);
-      checkAuth();
-    } catch(e) { showScreen('screen-config'); }
-  } else {
-    showScreen('screen-config');
-  }
-  setupStepDots();
+// ── INIT
+window.addEventListener('DOMContentLoaded', async () => {
+  setupDots();
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) { user = session.user; await loadProfile(); showScreen('screen-home'); loadHome(); }
+  else showScreen('screen-auth');
 });
 
-async function initSupabase() {
-  const url = document.getElementById('sb-url').value.trim();
-  const key = document.getElementById('sb-key').value.trim();
-  if (!url || !key) return showToast('Entre les deux clés', 'error');
-  try {
-    sb = supabase.createClient(url, key);
-    // Test connection
-    await sb.from('profiles').select('id').limit(1);
-    localStorage.setItem(STORAGE_URL_KEY, url);
-    localStorage.setItem(STORAGE_KEY_KEY, key);
-    showToast('Connexion réussie !', 'success');
-    checkAuth();
-  } catch(e) {
-    showToast('Clés invalides ou tables manquantes', 'error');
-  }
-}
-
-// ══════════════════════════════════════════
+// ════════════════════════════════════════
 // AUTH
-// ══════════════════════════════════════════
-async function checkAuth() {
-  const { data: { session } } = await sb.auth.getSession();
-  if (session) {
-    currentUser = session.user;
-    await loadProfile();
-    showScreen('screen-home');
-    loadHome();
-  } else {
-    showScreen('screen-auth');
-  }
-}
-
+// ════════════════════════════════════════
 async function login() {
-  const email = document.getElementById('login-email').value.trim();
-  const pwd = document.getElementById('login-pwd').value;
-  if (!email || !pwd) return showToast('Remplis tous les champs', 'error');
-  showToast('Connexion...');
+  const email = v('login-email'), pwd = v('login-pwd');
+  if (!email || !pwd) return toast('Remplis tous les champs','error');
+  toast('Connexion...');
   const { data, error } = await sb.auth.signInWithPassword({ email, password: pwd });
-  if (error) return showToast(error.message, 'error');
-  currentUser = data.user;
-  await loadProfile();
-  showScreen('screen-home');
-  loadHome();
+  if (error) return toast(error.message,'error');
+  user = data.user; await loadProfile();
+  showScreen('screen-home'); loadHome();
 }
 
 async function signup() {
-  const name = document.getElementById('signup-name').value.trim();
-  const phone = document.getElementById('signup-phone').value.trim();
-  const email = document.getElementById('signup-email').value.trim();
-  const pwd = document.getElementById('signup-pwd').value;
-  if (!name || !email || !pwd) return showToast('Remplis les champs requis', 'error');
-  showToast('Création du compte...');
+  const name = v('su-name'), phone = v('su-phone'), email = v('su-email'), pwd = v('su-pwd'), pwd2 = v('su-pwd2');
+  if (!name || !email || !pwd) return toast('Remplis les champs requis','error');
+  if (pwd !== pwd2) return toast('Les mots de passe ne correspondent pas','error');
+  if (pwd.length < 6) return toast('Mot de passe trop court (min 6)','error');
+  toast('Création du compte...');
   const { data, error } = await sb.auth.signUp({ email, password: pwd });
-  if (error) return showToast(error.message, 'error');
-  currentUser = data.user;
-  // Crée le profil
-  await sb.from('profiles').upsert({
-    id: currentUser.id, full_name: name, phone, email, created_at: new Date().toISOString()
-  });
+  if (error) return toast(error.message,'error');
+  user = data.user;
+  await sb.from('profiles').upsert({ id: user.id, full_name: name, phone, email });
   await loadProfile();
-  showToast('Compte créé ! Bienvenue 🎉', 'success');
-  showScreen('screen-home');
-  loadHome();
+  toast('Compte créé ! Bienvenue 🎉','success');
+  showScreen('screen-home'); loadHome();
 }
 
 async function logout() {
   await sb.auth.signOut();
-  currentUser = null; currentProfile = null;
+  user = null; profile = null;
   showScreen('screen-auth');
 }
 
 async function loadProfile() {
-  if (!currentUser) return;
-  const { data } = await sb.from('profiles').select('*').eq('id', currentUser.id).single();
-  currentProfile = data;
+  const { data } = await sb.from('profiles').select('*').eq('id', user.id).single();
+  profile = data;
+}
+
+function togglePw(id, btn) {
+  const el = document.getElementById(id);
+  el.type = el.type === 'password' ? 'text' : 'password';
+  btn.textContent = el.type === 'password' ? '👁' : '🙈';
 }
 
 function switchAuthTab(tab) {
-  document.getElementById('tab-login').style.display = tab === 'login' ? 'block' : 'none';
-  document.getElementById('tab-signup').style.display = tab === 'signup' ? 'block' : 'none';
-  document.querySelectorAll('.auth-tab').forEach((t,i) => t.classList.toggle('active', (i===0 && tab==='login') || (i===1 && tab==='signup')));
+  document.getElementById('tab-login').style.display = tab==='login'?'block':'none';
+  document.getElementById('tab-signup').style.display = tab==='signup'?'block':'none';
+  document.querySelectorAll('.auth-tab').forEach((t,i) => t.classList.toggle('active',(i===0&&tab==='login')||(i===1&&tab==='signup')));
 }
 
-// ══════════════════════════════════════════
+// ════════════════════════════════════════
 // HOME
-// ══════════════════════════════════════════
+// ════════════════════════════════════════
 async function loadHome() {
   const el = document.getElementById('home-content');
-  const name = currentProfile?.full_name?.split(' ')[0] || 'toi';
-  
-  const { data: memberships } = await sb.from('tontine_members')
-    .select('*, tontines(*)')
-    .eq('user_id', currentUser.id)
-    .eq('statut', 'actif');
-
-  const tontines = memberships?.map(m => m.tontines).filter(Boolean) || [];
-  const totalEpargne = tontines.reduce((s, t) => s + (t.montant || 0), 0);
-
+  const nom = profile?.full_name?.split(' ')[0] || 'toi';
+  const { data: ms } = await sb.from('tontine_members').select('tontine_id,tontines(*)').eq('user_id', user.id).eq('statut','actif');
+  const ts = ms?.map(m=>m.tontines).filter(Boolean) || [];
+  const total = ts.reduce((s,t)=>s+(t.montant||0),0);
   el.innerHTML = `
-    <div style="margin-bottom:1.2rem;">
-      <div style="font-size:0.8rem;color:var(--muted);">Bonjour 👋</div>
-      <div style="font-size:1.4rem;font-weight:800;">${name}</div>
+    <div style="margin-bottom:1rem;">
+      <div style="font-size:.78rem;color:var(--muted);">Bonjour 👋</div>
+      <div style="font-size:1.4rem;font-weight:800;">${nom}</div>
     </div>
-    <div class="card card-gold" style="margin-bottom:0.8rem;">
-      <div style="font-size:0.72rem;opacity:0.7;text-transform:uppercase;letter-spacing:0.08em;">Épargne totale en cours</div>
-      <div style="font-size:2rem;font-weight:800;color:var(--gold-light);margin:0.3rem 0;">${fmt(totalEpargne)} FCFA</div>
-      <div style="font-size:0.82rem;opacity:0.7;">${tontines.length} tontine${tontines.length !== 1 ? 's' : ''} active${tontines.length !== 1 ? 's' : ''}</div>
+    <div class="card card-green" style="margin-bottom:.8rem;">
+      <div style="font-size:.7rem;opacity:.7;text-transform:uppercase;letter-spacing:.08em;">Épargne totale en cours</div>
+      <div style="font-size:1.9rem;font-weight:800;color:var(--gold-light);margin:.3rem 0;">${fmt(total)} FCFA</div>
+      <div style="font-size:.8rem;opacity:.7;">${ts.length} tontine${ts.length!==1?'s':''} active${ts.length!==1?'s':''}</div>
     </div>
     <div class="kente"></div>
     <div class="section-title">Mes tontines</div>
-    ${tontines.length === 0 ? `<div class="empty"><div class="empty-icon">🫙</div><h3>Aucune tontine</h3><p>Crée ou rejoins une tontine pour commencer à épargner ensemble.</p><button class="btn btn-primary" style="margin-top:1rem;" onclick="navTo('add')">+ Créer ma première tontine</button></div>` : tontines.map(t => tontineCard(t)).join('')}
-    <div class="section-title" style="margin-top:1.2rem;">Actions rapides</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;">
+    ${ts.length===0?`<div class="empty"><div class="empty-icon">🫙</div><h3>Aucune tontine</h3><p>Crée ou rejoins une tontine pour commencer.</p><button class="btn btn-primary" style="margin-top:1rem;" onclick="navTo('add')">+ Créer ma première tontine</button></div>`:ts.map(tCard).join('')}
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin-top:1.2rem;">
       <button class="btn btn-ghost" onclick="navTo('add')">➕ Créer</button>
       <button class="btn btn-ghost" onclick="showModal('modal-join')">🔗 Rejoindre</button>
-    </div>
-  `;
+    </div>`;
 }
 
-function tontineCard(t) {
+function tCard(t) {
   return `<div class="card" onclick="openTontine('${t.id}')" style="cursor:pointer;">
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;">
-      <div>
-        <div style="font-weight:700;font-size:0.95rem;">${t.nom}</div>
-        <div style="font-size:0.75rem;color:var(--muted);margin-top:0.2rem;">${t.frequence} · ${t.max_membres || '?'} membres max</div>
-      </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <div style="font-weight:700;">${t.nom}</div>
       <span class="badge badge-green">Actif</span>
     </div>
-    <div style="font-size:1.3rem;font-weight:800;color:var(--orange);margin-top:0.5rem;">${fmt(t.montant)} FCFA</div>
+    <div style="font-size:1.2rem;font-weight:800;color:var(--orange);margin:.4rem 0;">${fmt(t.montant)} FCFA</div>
+    <div style="font-size:.75rem;color:var(--muted);">${t.frequence} · ${t.max_membres||'?'} membres max</div>
   </div>`;
 }
 
-// ══════════════════════════════════════════
+// ════════════════════════════════════════
 // TONTINES LIST
-// ══════════════════════════════════════════
+// ════════════════════════════════════════
 async function loadTontines() {
   const el = document.getElementById('tontines-content');
-  const { data: memberships } = await sb.from('tontine_members')
-    .select('*, tontines(*)')
-    .eq('user_id', currentUser.id);
-  const tontines = memberships?.map(m => ({ ...m.tontines, role: m.role, statut: m.statut })).filter(Boolean) || [];
-  el.innerHTML = tontines.length === 0
-    ? `<div class="empty"><div class="empty-icon">👥</div><h3>Aucune tontine</h3><p>Crée une nouvelle tontine ou rejoins-en une avec un code.</p><button class="btn btn-primary" style="margin-top:1rem;" onclick="navTo('add')">+ Créer une tontine</button></div>`
-    : tontines.map(t => `
-      <div class="card" onclick="openTontine('${t.id}')" style="cursor:pointer;">
-        <div style="display:flex;justify-content:space-between;align-items:center;">
-          <div style="font-weight:700;">${t.nom}</div>
-          <span class="badge ${t.role === 'admin' ? 'badge-orange' : 'badge-gray'}">${t.role === 'admin' ? 'Admin' : 'Membre'}</span>
-        </div>
-        <div style="font-size:1.1rem;font-weight:800;color:var(--orange);margin:0.4rem 0;">${fmt(t.montant)} FCFA <span style="font-size:0.75rem;font-weight:400;color:var(--muted);">/ ${t.frequence}</span></div>
-        <div style="font-size:0.78rem;color:var(--muted);">${t.ordre_tours} · ${t.max_membres || '?'} membres max</div>
-      </div>`).join('');
+  const { data: ms } = await sb.from('tontine_members').select('role,tontines(*)').eq('user_id', user.id);
+  const ts = ms?.map(m=>({...m.tontines,role:m.role})).filter(Boolean)||[];
+  el.innerHTML = ts.length===0
+    ?`<div class="empty"><div class="empty-icon">👥</div><h3>Aucune tontine</h3><p>Crée ou rejoins une tontine.</p><button class="btn btn-primary" style="margin-top:1rem;" onclick="navTo('add')">+ Créer</button></div>`
+    :ts.map(t=>`<div class="card" onclick="openTontine('${t.id}')" style="cursor:pointer;">
+      <div style="display:flex;justify-content:space-between;">
+        <div style="font-weight:700;">${t.nom}</div>
+        <span class="badge ${t.role==='admin'?'badge-orange':'badge-gray'}">${t.role==='admin'?'👑 Admin':'Membre'}</span>
+      </div>
+      <div style="font-size:1.1rem;font-weight:800;color:var(--orange);margin:.3rem 0;">${fmt(t.montant)} FCFA <span style="font-size:.75rem;font-weight:400;color:var(--muted);">/ ${t.frequence}</span></div>
+      <div style="font-size:.75rem;color:var(--muted);">${t.ordre_tours} · ${t.max_membres||'?'} membres max</div>
+    </div>`).join('');
 }
 
-// ══════════════════════════════════════════
-// TONTINE DETAIL
-// ══════════════════════════════════════════
+// ════════════════════════════════════════
+// DETAIL
+// ════════════════════════════════════════
 async function openTontine(id) {
   showScreen('screen-detail');
-  const { data: t } = await sb.from('tontines').select('*').eq('id', id).single();
-  currentTontine = t;
+  const { data: t } = await sb.from('tontines').select('*').eq('id',id).single();
+  curTontine = t;
   document.getElementById('detail-title').textContent = t.nom;
-  document.getElementById('detail-freq').textContent = t.frequence;
-  document.getElementById('detail-amount').textContent = fmt(t.montant) + ' FCFA';
-  document.getElementById('invite-code-text').textContent = t.code_invitation || '---';
-  document.getElementById('pay-amount').value = t.montant || '';
-  
-  // Membres
-  const { data: members } = await sb.from('tontine_members')
-    .select('*, profiles(*)')
-    .eq('tontine_id', id)
-    .eq('statut', 'actif');
-  
-  document.getElementById('detail-members-count').textContent = `${members?.length || 0} / ${t.max_membres || '?'} membres`;
-  const pct = Math.round(((members?.length || 0) / (t.max_membres || 1)) * 100);
-  document.getElementById('detail-progress').style.width = pct + '%';
-  document.getElementById('detail-progress-label').textContent = `${pct}% des places remplies`;
+  document.getElementById('d-freq').textContent = t.frequence;
+  document.getElementById('d-amount').textContent = fmt(t.montant)+' FCFA';
+  document.getElementById('code-display').textContent = t.code_invitation||'---';
+  document.getElementById('modal-code').textContent = t.code_invitation||'---';
+  document.getElementById('pay-amount').value = t.montant||'';
 
-  renderMembres(members || [], t);
-  loadPaiements(id);
-  loadChat(id);
-  renderInfos(t);
-  switchDetailTab('membres');
+  const { data: mbs } = await sb.from('tontine_members').select('*,profiles(*)').eq('tontine_id',id).eq('statut','actif');
+  const cnt = mbs?.length||0, max = t.max_membres||1;
+  document.getElementById('d-members').textContent = `${cnt} / ${max} membres`;
+  const pct = Math.round(cnt/max*100);
+  document.getElementById('d-progress').style.width = pct+'%';
+  document.getElementById('d-progress-label').textContent = `${pct}% des places remplies`;
+  renderMembres(mbs||[]);
+
+  document.getElementById('infos-extra').innerHTML = `
+    <div class="card">
+      ${iRow('Fréquence',t.frequence)}
+      ${iRow('Montant',fmt(t.montant)+' FCFA')}
+      ${iRow('Membres max',t.max_membres)}
+      ${iRow('Ordre des tours',t.ordre_tours)}
+      ${t.description?iRow('Description',t.description):''}
+    </div>`;
+
+  loadPays(id); loadChat(id); dTab('membres');
 }
 
-function renderMembres(members, t) {
-  const colors = ['av-orange','av-green','av-gold','av-purple'];
-  document.getElementById('membres-list').innerHTML = members.length === 0
-    ? '<div class="empty"><div class="empty-icon">👤</div><p>Aucun membre encore</p></div>'
-    : members.map((m, i) => {
-        const p = m.profiles;
-        const initials = (p?.full_name || 'U').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
-        return `<div class="member-row">
-          <div class="avatar ${colors[i % colors.length]}">${initials}</div>
-          <div class="member-info">
-            <div class="member-name">${p?.full_name || 'Inconnu'}</div>
-            <div class="member-sub">${p?.phone || ''} · Tour #${m.ordre_tour || '?'}</div>
-          </div>
-          <span class="badge ${m.role === 'admin' ? 'badge-orange' : 'badge-gray'}">${m.role === 'admin' ? '👑 Admin' : 'Membre'}</span>
-        </div>`;
-      }).join('');
-}
-
-async function loadPaiements(tontineId) {
-  const { data: pays } = await sb.from('paiements')
-    .select('*, profiles(full_name)')
-    .eq('tontine_id', tontineId)
-    .order('created_at', { ascending: false })
-    .limit(20);
-  
-  document.getElementById('paiements-list').innerHTML = !pays || pays.length === 0
-    ? '<div class="empty"><div class="empty-icon">💸</div><h3>Aucun paiement</h3><p>Sois le premier à cotiser !</p></div>'
-    : pays.map(p => `
-      <div class="card">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;">
-          <div>
-            <div style="font-weight:600;font-size:0.9rem;">${p.profiles?.full_name || 'Inconnu'}</div>
-            <div style="font-size:0.75rem;color:var(--muted);margin-top:0.15rem;">${p.mode_paiement} · ${formatDate(p.created_at)}</div>
-            ${p.note ? `<div style="font-size:0.75rem;color:var(--muted);font-style:italic;margin-top:0.1rem;">${p.note}</div>` : ''}
-          </div>
-          <div style="text-align:right;">
-            <div style="font-weight:800;color:var(--green);font-size:1rem;">+${fmt(p.montant)}</div>
-            <span class="badge ${p.statut === 'confirme' ? 'badge-green' : 'badge-gold'}">${p.statut}</span>
-          </div>
+function renderMembres(mbs) {
+  const cs=['av-o','av-g','av-gold','av-p'];
+  document.getElementById('membres-list').innerHTML = mbs.length===0
+    ?'<div class="empty"><div class="empty-icon">👤</div><p>Aucun membre</p></div>'
+    :mbs.map((m,i)=>{
+      const p=m.profiles, init=(p?.full_name||'U').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+      return `<div class="member-row">
+        <div class="avatar ${cs[i%cs.length]}">${init}</div>
+        <div class="member-info">
+          <div class="member-name">${p?.full_name||'Inconnu'}</div>
+          <div class="member-sub">${p?.phone||''} · Tour #${m.ordre_tour||'?'}</div>
         </div>
-      </div>`).join('');
+        <span class="badge ${m.role==='admin'?'badge-orange':'badge-gray'}">${m.role==='admin'?'👑':'Membre'}</span>
+      </div>`;
+    }).join('');
 }
 
-async function recordPayment() {
-  const montant = parseInt(document.getElementById('pay-amount').value);
-  const mode = document.getElementById('pay-mode').value;
-  const note = document.getElementById('pay-note').value;
-  if (!montant) return showToast('Entre un montant', 'error');
-  const { error } = await sb.from('paiements').insert({
-    tontine_id: currentTontine.id, user_id: currentUser.id,
-    montant, mode_paiement: mode, note, statut: 'confirme',
-    created_at: new Date().toISOString()
-  });
-  if (error) return showToast(error.message, 'error');
-  closeModal('modal-paiement');
-  showToast('Paiement enregistré ✅', 'success');
-  loadPaiements(currentTontine.id);
+async function loadPays(tid) {
+  const { data: ps } = await sb.from('paiements').select('*,profiles(full_name)').eq('tontine_id',tid).order('created_at',{ascending:false}).limit(30);
+  document.getElementById('paiements-list').innerHTML = !ps||ps.length===0
+    ?'<div class="empty"><div class="empty-icon">💸</div><h3>Aucun paiement</h3><p>Sois le premier à cotiser !</p></div>'
+    :ps.map(p=>`<div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+        <div>
+          <div style="font-weight:600;font-size:.88rem;">${p.profiles?.full_name||'?'}</div>
+          <div style="font-size:.72rem;color:var(--muted);">${p.mode_paiement} · ${fDate(p.created_at)}</div>
+          ${p.note?`<div style="font-size:.72rem;color:var(--muted);font-style:italic;">${p.note}</div>`:''}
+        </div>
+        <div style="text-align:right;">
+          <div style="font-weight:800;color:var(--green);">+${fmt(p.montant)} F</div>
+          <span class="badge badge-green">${p.statut}</span>
+        </div>
+      </div>
+    </div>`).join('');
 }
 
-// ══════════════════════════════════════════
+async function recordPay() {
+  const m = parseInt(v('pay-amount')), mode = v('pay-mode'), note = v('pay-note');
+  if (!m) return toast('Entre un montant','error');
+  const { error } = await sb.from('paiements').insert({ tontine_id:curTontine.id, user_id:user.id, montant:m, mode_paiement:mode, note, statut:'confirme' });
+  if (error) return toast(error.message,'error');
+  closeModal('modal-pay');
+  toast('Paiement enregistré ✅','success');
+  loadPays(curTontine.id);
+}
+
+// ════════════════════════════════════════
 // CHAT
-// ══════════════════════════════════════════
-async function loadChat(tontineId) {
-  if (chatSubscription) chatSubscription.unsubscribe();
-  const { data: msgs } = await sb.from('messages')
-    .select('*, profiles(full_name)')
-    .eq('tontine_id', tontineId)
-    .order('created_at', { ascending: true })
-    .limit(50);
-  renderMessages(msgs || []);
-
-  chatSubscription = sb.channel(`chat-${tontineId}`)
-    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `tontine_id=eq.${tontineId}` },
-      async (payload) => {
-        const { data: msg } = await sb.from('messages').select('*, profiles(full_name)').eq('id', payload.new.id).single();
-        appendMessage(msg);
-      })
-    .subscribe();
-}
-
-function renderMessages(msgs) {
+// ════════════════════════════════════════
+async function loadChat(tid) {
+  if (chatSub) { chatSub.unsubscribe(); chatSub=null; }
+  const { data: ms } = await sb.from('messages').select('*,profiles(full_name)').eq('tontine_id',tid).order('created_at',{ascending:true}).limit(60);
   const el = document.getElementById('chat-messages');
-  el.innerHTML = msgs.map(m => msgHTML(m)).join('');
+  el.innerHTML = (ms||[]).map(msgHTML).join('');
   el.scrollTop = el.scrollHeight;
-}
-
-function appendMessage(m) {
-  const el = document.getElementById('chat-messages');
-  el.insertAdjacentHTML('beforeend', msgHTML(m));
-  el.scrollTop = el.scrollHeight;
+  chatSub = sb.channel('chat-'+tid)
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'messages',filter:`tontine_id=eq.${tid}`},async pay=>{
+      const { data: m } = await sb.from('messages').select('*,profiles(full_name)').eq('id',pay.new.id).single();
+      if (m) { el.insertAdjacentHTML('beforeend',msgHTML(m)); el.scrollTop=el.scrollHeight; }
+    }).subscribe();
 }
 
 function msgHTML(m) {
-  const isMe = m.user_id === currentUser.id;
-  return `<div style="display:flex;flex-direction:column;align-items:${isMe ? 'flex-end' : 'flex-start'};">
-    ${!isMe ? `<div style="font-size:0.68rem;color:var(--muted);margin-bottom:0.15rem;margin-left:0.3rem;">${m.profiles?.full_name || '?'}</div>` : ''}
-    <div class="msg ${isMe ? 'msg-out' : 'msg-in'}">${escHtml(m.contenu)}<div class="msg-time">${formatTime(m.created_at)}</div></div>
+  const me = m.user_id===user.id;
+  return `<div style="display:flex;flex-direction:column;align-items:${me?'flex-end':'flex-start'};">
+    ${!me?`<div style="font-size:.65rem;color:var(--muted);margin-bottom:.1rem;margin-left:.3rem;">${m.profiles?.full_name||'?'}</div>`:''}
+    <div class="msg ${me?'msg-out':'msg-in'}">${esc(m.contenu)}<div class="msg-time">${fTime(m.created_at)}</div></div>
   </div>`;
 }
 
-async function sendMessage() {
-  const input = document.getElementById('chat-input');
-  const text = input.value.trim();
-  if (!text || !currentTontine) return;
-  input.value = '';
-  await sb.from('messages').insert({
-    tontine_id: currentTontine.id, user_id: currentUser.id,
-    contenu: text, created_at: new Date().toISOString()
-  });
+async function sendMsg() {
+  const inp = document.getElementById('chat-input'), txt = inp.value.trim();
+  if (!txt||!curTontine) return;
+  inp.value='';
+  await sb.from('messages').insert({ tontine_id:curTontine.id, user_id:user.id, contenu:txt });
 }
 
-// ══════════════════════════════════════════
-// CREATE TONTINE WIZARD
-// ══════════════════════════════════════════
-function setupStepDots() {
-  const dots = document.getElementById('step-dots');
-  dots.innerHTML = [1,2,3,4].map(i => `<div class="step-dot ${i===1?'active':''}" id="dot-${i}"></div>`).join('');
+// ════════════════════════════════════════
+// CREATE TONTINE
+// ════════════════════════════════════════
+function setupDots() {
+  document.getElementById('step-dots').innerHTML = [1,2,3,4].map(i=>`<div class="step-dot ${i===1?'active':''}" id="dot-${i}"></div>`).join('');
 }
 
-function nextStep(step) {
-  if (step === 1) {
-    const name = document.getElementById('new-name').value.trim();
-    if (!name) return showToast('Entre un nom', 'error');
-    newTontineData.nom = name;
-    newTontineData.description = document.getElementById('new-desc').value.trim();
-  }
-  if (step === 2) {
-    const amount = document.getElementById('new-amount').value;
-    const max = document.getElementById('new-max').value;
-    if (!amount) return showToast('Entre un montant', 'error');
-    newTontineData.montant = parseInt(amount);
-    newTontineData.frequence = document.getElementById('new-freq').value;
-    newTontineData.max_membres = parseInt(max) || 10;
-  }
-  if (step === 3) {
-    newTontineData.ordre_tours = selectedOrder;
-  }
-  if (step === 4) { return; }
-  
-  if (step === 3) {
-    // Show recap
-    document.getElementById('recap-card').innerHTML = `
-      <div style="color:rgba(255,255,255,0.5);font-size:0.75rem;margin-bottom:0.3rem;">NOM</div>
-      <div style="color:var(--cream);font-weight:700;margin-bottom:0.8rem;">${newTontineData.nom}</div>
-      <div style="color:rgba(255,255,255,0.5);font-size:0.75rem;margin-bottom:0.3rem;">COTISATION</div>
-      <div style="color:var(--gold-light);font-weight:800;font-size:1.3rem;margin-bottom:0.8rem;">${fmt(newTontineData.montant)} FCFA <span style="font-size:0.8rem;font-weight:400;color:rgba(255,255,255,0.5);">/ ${newTontineData.frequence}</span></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;">
-        <div><div style="color:rgba(255,255,255,0.5);font-size:0.75rem;">MEMBRES MAX</div><div style="color:var(--cream);font-weight:600;">${newTontineData.max_membres}</div></div>
-        <div><div style="color:rgba(255,255,255,0.5);font-size:0.75rem;">ORDRE DES TOURS</div><div style="color:var(--cream);font-weight:600;">${newTontineData.ordre_tours}</div></div>
-      </div>`;
-  }
-  
-  goToStep(step + 1);
+function nextStep(s) {
+  if (s===1){ if(!v('new-name')) return toast('Entre un nom','error'); newT.nom=v('new-name'); newT.desc=v('new-desc'); }
+  if (s===2){ if(!v('new-amount')) return toast('Entre un montant','error'); newT.montant=parseInt(v('new-amount')); newT.freq=v('new-freq'); newT.max=parseInt(v('new-max'))||10; }
+  if (s===3){ newT.ordre=selOrd; buildRecap(); }
+  goStep(s+1);
 }
 
-function prevStep(step) { goToStep(step - 1); }
-
-function goToStep(n) {
-  currentStep = n;
-  document.querySelectorAll('.setup-step').forEach((s, i) => s.classList.toggle('active', i+1 === n));
-  document.querySelectorAll('.step-dot').forEach((d, i) => {
-    d.classList.toggle('active', i+1 === n);
-  });
+function goStep(n) {
+  step=n;
+  document.querySelectorAll('.setup-step').forEach((s,i)=>s.classList.toggle('active',i+1===n));
+  document.querySelectorAll('.step-dot').forEach((d,i)=>d.classList.toggle('active',i+1===n));
 }
 
-function selectOrder(o) {
-  selectedOrder = o;
-  ['aleatoire','manuel','anciennete'].forEach(x => {
-    document.getElementById(`order-${x}`)?.classList.toggle('selected', x === o);
-  });
+function selOrder(o) {
+  selOrd=o;
+  ['aleatoire','manuel','anciennete'].forEach(x=>document.getElementById('ord-'+x)?.classList.toggle('selected',x===o));
+}
+
+function buildRecap() {
+  document.getElementById('recap-card').innerHTML = `
+    <div style="color:rgba(255,255,255,.5);font-size:.72rem;">NOM</div>
+    <div style="color:var(--cream);font-weight:700;margin-bottom:.8rem;">${newT.nom}</div>
+    <div style="color:rgba(255,255,255,.5);font-size:.72rem;">COTISATION</div>
+    <div style="color:var(--gold-light);font-weight:800;font-size:1.3rem;margin-bottom:.8rem;">${fmt(newT.montant)} FCFA <span style="font-size:.78rem;font-weight:400;color:rgba(255,255,255,.5);">/ ${newT.freq}</span></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.8rem;">
+      <div><div style="color:rgba(255,255,255,.5);font-size:.72rem;">MEMBRES MAX</div><div style="color:var(--cream);font-weight:600;">${newT.max}</div></div>
+      <div><div style="color:rgba(255,255,255,.5);font-size:.72rem;">ORDRE</div><div style="color:var(--cream);font-weight:600;">${newT.ordre}</div></div>
+    </div>`;
 }
 
 async function createTontine() {
-  showToast('Création en cours...');
-  const code = Math.random().toString(36).substring(2, 8).toUpperCase();
+  toast('Création en cours...');
+  const code = Math.random().toString(36).substring(2,8).toUpperCase();
   const { data: t, error } = await sb.from('tontines').insert({
-    nom: newTontineData.nom,
-    description: newTontineData.description,
-    montant: newTontineData.montant,
-    frequence: newTontineData.frequence,
-    max_membres: newTontineData.max_membres,
-    ordre_tours: newTontineData.ordre_tours,
-    admin_id: currentUser.id,
-    code_invitation: code,
-    statut: 'actif',
-    created_at: new Date().toISOString()
+    nom:newT.nom, description:newT.desc, montant:newT.montant,
+    frequence:newT.freq, max_membres:newT.max, ordre_tours:newT.ordre,
+    admin_id:user.id, code_invitation:code, statut:'actif'
   }).select().single();
-  if (error) return showToast(error.message, 'error');
-  // Ajoute l'admin comme membre
-  await sb.from('tontine_members').insert({
-    tontine_id: t.id, user_id: currentUser.id, role: 'admin',
-    statut: 'actif', ordre_tour: 1, joined_at: new Date().toISOString()
-  });
-  showToast(`Tontine créée ! Code: ${code} 🎉`, 'success');
-  newTontineData = {}; currentStep = 1; goToStep(1);
-  navTo('tontines');
+  if (error) return toast(error.message,'error');
+  await sb.from('tontine_members').insert({ tontine_id:t.id, user_id:user.id, role:'admin', statut:'actif', ordre_tour:1 });
+  toast(`Tontine créée ! Code: ${code} 🎉`,'success');
+  newT={}; goStep(1);
+  // Redirige vers le détail
+  setTimeout(()=>openTontine(t.id), 800);
 }
 
-// ══════════════════════════════════════════
-// JOIN TONTINE
-// ══════════════════════════════════════════
+// ════════════════════════════════════════
+// JOIN
+// ════════════════════════════════════════
 async function joinTontine() {
-  const code = document.getElementById('join-code').value.trim().toUpperCase();
-  if (!code) return showToast('Entre un code', 'error');
-  const { data: t } = await sb.from('tontines').select('*').eq('code_invitation', code).single();
-  if (!t) return showToast('Code invalide', 'error');
-  // Check if already member
-  const { data: existing } = await sb.from('tontine_members')
-    .select('id').eq('tontine_id', t.id).eq('user_id', currentUser.id).single();
-  if (existing) return showToast('Tu es déjà membre', 'error');
-  // Check max
-  const { count } = await sb.from('tontine_members').select('id', { count: 'exact' }).eq('tontine_id', t.id).eq('statut', 'actif');
-  if (count >= (t.max_membres || 999)) return showToast('Groupe complet', 'error');
-  
-  const { data: members } = await sb.from('tontine_members').select('ordre_tour').eq('tontine_id', t.id);
-  const nextOrdre = (members?.length || 0) + 1;
-  
-  await sb.from('tontine_members').insert({
-    tontine_id: t.id, user_id: currentUser.id, role: 'membre',
-    statut: 'actif', ordre_tour: nextOrdre, joined_at: new Date().toISOString()
-  });
+  const code = v('join-code').toUpperCase();
+  if (!code) return toast('Entre un code','error');
+  const { data: t } = await sb.from('tontines').select('*').eq('code_invitation',code).single();
+  if (!t) return toast('Code invalide','error');
+  const { data: ex } = await sb.from('tontine_members').select('id').eq('tontine_id',t.id).eq('user_id',user.id).single();
+  if (ex) return toast('Tu es déjà membre','error');
+  const { count } = await sb.from('tontine_members').select('id',{count:'exact'}).eq('tontine_id',t.id).eq('statut','actif');
+  if (count>=(t.max_membres||999)) return toast('Groupe complet','error');
+  const { data: mbs } = await sb.from('tontine_members').select('ordre_tour').eq('tontine_id',t.id);
+  await sb.from('tontine_members').insert({ tontine_id:t.id, user_id:user.id, role:'membre', statut:'actif', ordre_tour:(mbs?.length||0)+1 });
   closeModal('modal-join');
-  showToast(`Bienvenue dans "${t.nom}" ! 🎉`, 'success');
-  loadTontines();
-}
-
-// ══════════════════════════════════════════
-// ACTIVITÉ
-// ══════════════════════════════════════════
-async function loadActivite() {
-  const el = document.getElementById('activite-content');
-  const { data: pays } = await sb.from('paiements')
-    .select('*, tontines(nom), profiles(full_name)')
-    .eq('user_id', currentUser.id)
-    .order('created_at', { ascending: false })
-    .limit(30);
-  
-  const { data: memberships } = await sb.from('tontine_members')
-    .select('*, tontines(nom, montant, frequence)')
-    .eq('user_id', currentUser.id);
-
-  const totalPaye = pays?.reduce((s, p) => s + (p.montant || 0), 0) || 0;
-
-  el.innerHTML = `
-    <div class="card card-orange" style="margin-bottom:1rem;">
-      <div style="font-size:0.72rem;opacity:0.7;text-transform:uppercase;letter-spacing:0.08em;">Total cotisé (tous temps)</div>
-      <div style="font-size:1.8rem;font-weight:800;color:#fff;margin-top:0.3rem;">${fmt(totalPaye)} FCFA</div>
-      <div style="font-size:0.82rem;opacity:0.7;">${pays?.length || 0} paiement${pays?.length !== 1 ? 's' : ''}</div>
-    </div>
-    <div class="section-title">Historique</div>
-    ${!pays || pays.length === 0
-      ? '<div class="empty"><div class="empty-icon">📋</div><h3>Aucune activité</h3><p>Tes paiements apparaîtront ici.</p></div>'
-      : pays.map(p => `
-        <div class="card">
-          <div style="display:flex;justify-content:space-between;align-items:center;">
-            <div>
-              <div style="font-weight:600;font-size:0.88rem;">${p.tontines?.nom || '?'}</div>
-              <div style="font-size:0.73rem;color:var(--muted);">${p.mode_paiement} · ${formatDate(p.created_at)}</div>
-            </div>
-            <div style="font-weight:800;color:var(--green);">+${fmt(p.montant)} F</div>
-          </div>
-        </div>`).join('')}`;
-}
-
-// ══════════════════════════════════════════
-// PROFIL
-// ══════════════════════════════════════════
-async function loadProfil() {
-  const el = document.getElementById('profil-content');
-  await loadProfile();
-  const p = currentProfile;
-  const initials = (p?.full_name || 'U').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
-  el.innerHTML = `
-    <div style="text-align:center;padding:1.5rem 0;">
-      <div class="avatar av-orange" style="width:72px;height:72px;font-size:1.5rem;margin:0 auto 0.8rem;">${initials}</div>
-      <div style="font-size:1.2rem;font-weight:800;">${p?.full_name || 'Utilisateur'}</div>
-      <div style="color:var(--muted);font-size:0.85rem;">${p?.email || currentUser.email}</div>
-      ${p?.phone ? `<div style="color:var(--muted);font-size:0.85rem;">${p.phone}</div>` : ''}
-    </div>
-    <div class="kente"></div>
-    <div class="section-title">Modifier le profil</div>
-    <div class="form-group"><label class="form-label">Nom complet</label><input class="form-input" id="edit-name" value="${p?.full_name || ''}"></div>
-    <div class="form-group"><label class="form-label">Téléphone</label><input class="form-input" id="edit-phone" type="tel" value="${p?.phone || ''}"></div>
-    <button class="btn btn-primary" onclick="saveProfile()">Enregistrer</button>
-    <div class="kente" style="margin-top:1.5rem;"></div>
-    <button class="btn btn-danger" style="margin-top:0.5rem;" onclick="logout()">🚪 Déconnexion</button>
-    <button class="btn btn-ghost" style="margin-top:0.6rem;font-size:0.78rem;opacity:0.5;" onclick="resetConfig()">⚙️ Changer de projet Supabase</button>
-  `;
-}
-
-async function saveProfile() {
-  const name = document.getElementById('edit-name').value.trim();
-  const phone = document.getElementById('edit-phone').value.trim();
-  await sb.from('profiles').upsert({ id: currentUser.id, full_name: name, phone, email: currentUser.email });
-  showToast('Profil mis à jour ✅', 'success');
-  await loadProfile();
-}
-
-function resetConfig() {
-  localStorage.removeItem(STORAGE_URL_KEY);
-  localStorage.removeItem(STORAGE_KEY_KEY);
-  location.reload();
-}
-
-// ══════════════════════════════════════════
-// NOTIFICATIONS
-// ══════════════════════════════════════════
-async function loadNotifications() {
-  const el = document.getElementById('notif-content');
-  const { data: notifs } = await sb.from('notifications')
-    .select('*')
-    .eq('user_id', currentUser.id)
-    .order('created_at', { ascending: false })
-    .limit(20);
-  
-  el.innerHTML = !notifs || notifs.length === 0
-    ? '<div class="empty"><div class="empty-icon">🔔</div><h3>Aucune notification</h3><p>Les rappels de cotisation apparaîtront ici.</p></div>'
-    : notifs.map(n => `
-      <div class="card" style="${n.lu ? '' : 'border-color:var(--gold);'}">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;">
-          <div style="font-weight:${n.lu ? '400' : '700'};font-size:0.9rem;">${n.titre}</div>
-          ${!n.lu ? '<span class="badge badge-orange">Nouveau</span>' : ''}
-        </div>
-        <div style="font-size:0.8rem;color:var(--muted);margin-top:0.3rem;">${n.message}</div>
-        <div style="font-size:0.7rem;color:var(--muted);margin-top:0.4rem;">${formatDate(n.created_at)}</div>
-      </div>`).join('');
-  
-  // Mark all as read
-  await sb.from('notifications').update({ lu: true }).eq('user_id', currentUser.id).eq('lu', false);
-}
-
-// ══════════════════════════════════════════
-// INFOS TAB
-// ══════════════════════════════════════════
-function renderInfos(t) {
-  document.getElementById('infos-content').innerHTML = `
-    <div class="card">
-      <div class="section-title" style="margin-top:0;">Informations</div>
-      ${infoRow('Nom', t.nom)}
-      ${infoRow('Montant', fmt(t.montant) + ' FCFA')}
-      ${infoRow('Fréquence', t.frequence)}
-      ${infoRow('Membres max', t.max_membres)}
-      ${infoRow('Ordre des tours', t.ordre_tours)}
-      ${infoRow('Statut', t.statut)}
-      ${t.description ? infoRow('Description', t.description) : ''}
-    </div>
-    <div class="card">
-      <div class="section-title" style="margin-top:0;">Code d'invitation</div>
-      <div style="text-align:center;padding:1rem;background:var(--sand);border-radius:0.8rem;">
-        <div style="font-size:2rem;font-weight:800;letter-spacing:0.2em;">${t.code_invitation || '---'}</div>
-        <div style="font-size:0.75rem;color:var(--muted);margin-top:0.3rem;">Partage ce code pour inviter des membres</div>
-      </div>
-      <button class="btn btn-primary" style="margin-top:0.8rem;" onclick="shareCode()">📤 Partager</button>
-    </div>
-  `;
-}
-
-function infoRow(label, value) {
-  return `<div style="display:flex;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid rgba(0,0,0,0.05);">
-    <span style="font-size:0.8rem;color:var(--muted);">${label}</span>
-    <span style="font-size:0.85rem;font-weight:600;">${value || '-'}</span>
-  </div>`;
+  toast(`Bienvenue dans "${t.nom}" 🎉`,'success');
+  setTimeout(()=>openTontine(t.id), 600);
 }
 
 function shareCode() {
-  const code = currentTontine?.code_invitation;
-  if (!code) return;
-  if (navigator.share) {
-    navigator.share({ title: 'Rejoins ma tontine', text: `Rejoins ma tontine "${currentTontine.nom}" avec le code : ${code}\n\nTélécharge Tontine Digitale !` });
-  } else {
-    navigator.clipboard?.writeText(code);
-    showToast('Code copié !', 'success');
-  }
+  const code = curTontine?.code_invitation; if(!code) return;
+  if (navigator.share) navigator.share({ title:'Rejoins ma tontine', text:`Rejoins "${curTontine.nom}" avec le code : ${code}\nApp : Tontine Digitale` });
+  else { navigator.clipboard?.writeText(code); toast('Code copié !','success'); }
 }
 
-// ══════════════════════════════════════════
+// ════════════════════════════════════════
+// ACTIVITÉ
+// ════════════════════════════════════════
+async function loadActivite() {
+  const el = document.getElementById('activite-content');
+  const { data: ps } = await sb.from('paiements').select('*,tontines(nom),profiles(full_name)').eq('user_id',user.id).order('created_at',{ascending:false}).limit(30);
+  const total = ps?.reduce((s,p)=>s+(p.montant||0),0)||0;
+  el.innerHTML = `
+    <div class="card card-orange" style="margin-bottom:1rem;">
+      <div style="font-size:.7rem;opacity:.7;text-transform:uppercase;letter-spacing:.08em;">Total cotisé</div>
+      <div style="font-size:1.8rem;font-weight:800;color:#fff;margin:.3rem 0;">${fmt(total)} FCFA</div>
+      <div style="font-size:.8rem;opacity:.7;">${ps?.length||0} paiement${ps?.length!==1?'s':''}</div>
+    </div>
+    <div class="section-title">Historique</div>
+    ${!ps||ps.length===0
+      ?'<div class="empty"><div class="empty-icon">📋</div><h3>Aucune activité</h3><p>Tes paiements apparaîtront ici.</p></div>'
+      :ps.map(p=>`<div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div><div style="font-weight:600;font-size:.88rem;">${p.tontines?.nom||'?'}</div><div style="font-size:.72rem;color:var(--muted);">${p.mode_paiement} · ${fDate(p.created_at)}</div></div>
+          <div style="font-weight:800;color:var(--green);">+${fmt(p.montant)} F</div>
+        </div>
+      </div>`).join('')}`;
+}
+
+// ════════════════════════════════════════
+// PROFIL
+// ════════════════════════════════════════
+async function loadProfil() {
+  await loadProfile();
+  const p = profile;
+  const init = (p?.full_name||'U').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+  document.getElementById('profil-content').innerHTML = `
+    <div style="text-align:center;padding:1.5rem 0;">
+      <div class="avatar av-o" style="width:72px;height:72px;font-size:1.4rem;margin:0 auto .8rem;">${init}</div>
+      <div style="font-size:1.2rem;font-weight:800;">${p?.full_name||'Utilisateur'}</div>
+      <div style="color:var(--muted);font-size:.85rem;">${p?.email||user.email}</div>
+      ${p?.phone?`<div style="color:var(--muted);font-size:.85rem;">${p.phone}</div>`:''}
+    </div>
+    <div class="kente"></div>
+    <div class="section-title">Modifier le profil</div>
+    <div class="form-group"><label class="form-label">Nom complet</label><input class="form-input" id="edit-name" value="${p?.full_name||''}"></div>
+    <div class="form-group"><label class="form-label">Téléphone</label><input class="form-input" id="edit-phone" type="tel" value="${p?.phone||''}"></div>
+    <button class="btn btn-primary" onclick="saveProfil()">Enregistrer</button>
+    <div class="kente" style="margin-top:1.5rem;"></div>
+    <button class="btn btn-danger" onclick="logout()">🚪 Déconnexion</button>`;
+}
+
+async function saveProfil() {
+  await sb.from('profiles').upsert({ id:user.id, full_name:v('edit-name'), phone:v('edit-phone'), email:user.email });
+  toast('Profil mis à jour ✅','success');
+  await loadProfile();
+}
+
+// ════════════════════════════════════════
+// NOTIFICATIONS
+// ════════════════════════════════════════
+async function loadNotifs() {
+  const el = document.getElementById('notifs-content');
+  const { data: ns, error } = await sb.from('notifications').select('*').eq('user_id',user.id).order('created_at',{ascending:false}).limit(20);
+  if (error || !ns || ns.length===0) {
+    el.innerHTML = '<div class="empty"><div class="empty-icon">🔔</div><h3>Aucune notification</h3><p>Les rappels de cotisation apparaîtront ici.</p></div>';
+    return;
+  }
+  el.innerHTML = ns.map(n=>`<div class="card" style="${n.lu?'':'border-color:var(--gold);'}">
+    <div style="display:flex;justify-content:space-between;">
+      <div style="font-weight:${n.lu?'400':'700'};font-size:.9rem;">${n.titre}</div>
+      ${!n.lu?'<span class="badge badge-orange">Nouveau</span>':''}
+    </div>
+    <div style="font-size:.8rem;color:var(--muted);margin-top:.3rem;">${n.message||''}</div>
+    <div style="font-size:.7rem;color:var(--muted);margin-top:.3rem;">${fDate(n.created_at)}</div>
+  </div>`).join('');
+  await sb.from('notifications').update({lu:true}).eq('user_id',user.id).eq('lu',false);
+}
+
+// ════════════════════════════════════════
 // NAVIGATION
-// ══════════════════════════════════════════
-function navTo(page) {
-  const map = { home: 'screen-home', tontines: 'screen-tontines', add: 'screen-setup', activite: 'screen-activite', profil: 'screen-profil' };
-  showScreen(map[page]);
-  if (page === 'home') loadHome();
-  if (page === 'tontines') loadTontines();
-  if (page === 'activite') loadActivite();
-  if (page === 'profil') loadProfil();
-  if (page === 'add') { currentStep = 1; goToStep(1); newTontineData = {}; }
+// ════════════════════════════════════════
+function navTo(p) {
+  const map = {home:'screen-home',tontines:'screen-tontines',add:'screen-add',activite:'screen-activite',profil:'screen-profil'};
+  showScreen(map[p]);
+  if(p==='home') loadHome();
+  if(p==='tontines') loadTontines();
+  if(p==='activite') loadActivite();
+  if(p==='profil') loadProfil();
+  if(p==='add') { newT={}; goStep(1); selOrder('aleatoire'); }
 }
 
 function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id)?.classList.add('active');
+  if(id==='screen-notifs') loadNotifs();
 }
 
-function switchDetailTab(tab) {
-  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.detail-tab').forEach(t => t.classList.remove('active'));
-  document.getElementById(`tab-${tab}`)?.classList.add('active');
-  document.querySelectorAll('.detail-tab').forEach(t => { if(t.textContent.toLowerCase().includes(tab)) t.classList.add('active'); });
+function dTab(t) {
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.detail-tab').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tp-'+t)?.classList.add('active');
+  document.querySelectorAll('.detail-tab').forEach(b=>{if(b.textContent.toLowerCase().includes(t)||( t==='code'&&b.textContent.includes('Code'))) b.classList.add('active');});
 }
 
-// ══════════════════════════════════════════
+// ════════════════════════════════════════
 // MODALS
-// ══════════════════════════════════════════
+// ════════════════════════════════════════
 function showModal(id) { document.getElementById(id)?.classList.add('open'); }
 function closeModal(id) { document.getElementById(id)?.classList.remove('open'); }
-document.querySelectorAll('.modal-overlay').forEach(m => m.addEventListener('click', e => { if(e.target === m) m.classList.remove('open'); }));
+document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');}));
 
-// ══════════════════════════════════════════
+// ════════════════════════════════════════
 // UTILS
-// ══════════════════════════════════════════
-function showToast(msg, type = '') {
+// ════════════════════════════════════════
+function v(id) { return document.getElementById(id)?.value?.trim()||''; }
+function fmt(n) { return (n||0).toLocaleString('fr-FR'); }
+function fDate(s) { return s?new Date(s).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric'}):''; }
+function fTime(s) { return s?new Date(s).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}):''; }
+function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function iRow(l,val) { return `<div style="display:flex;justify-content:space-between;padding:.45rem 0;border-bottom:1px solid rgba(0,0,0,.05);"><span style="font-size:.78rem;color:var(--muted);">${l}</span><span style="font-size:.82rem;font-weight:600;">${val||'-'}</span></div>`; }
+
+function toast(msg, type='') {
   const t = document.getElementById('toast');
-  t.textContent = msg; t.className = 'show ' + type;
-  clearTimeout(t._to);
-  t._to = setTimeout(() => t.className = '', 3000);
-}
-
-function fmt(n) { return (n || 0).toLocaleString('fr-FR'); }
-
-function formatDate(iso) {
-  if (!iso) return '';
-  return new Date(iso).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' });
-}
-
-function formatTime(iso) {
-  if (!iso) return '';
-  return new Date(iso).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-}
-
-function escHtml(s) {
-  return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  t.textContent=msg; t.className='show '+(type||'');
+  clearTimeout(t._t); t._t=setTimeout(()=>t.className='',3000);
 }
 </script>
 </body>
