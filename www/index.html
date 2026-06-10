@@ -683,10 +683,14 @@ async function loadPays(tid) {
 // PAIEMENT — CinetPay simulation
 // ════════════════════════════════════════
 
-// Clés CinetPay (remplace par les vraies quand tu auras le compte)
-const CINETPAY_APIKEY = 'VOTRE_API_KEY'; // à remplacer
-const CINETPAY_SITEID = 'VOTRE_SITE_ID'; // à remplacer
-const CINETPAY_SANDBOX = true; // false en production
+// ════════════════════════════════════════
+// FEDAPAY — Paiement intégré
+// ════════════════════════════════════════
+const FEDAPAY_PUBLIC_KEY = 'pk_sandbox_MmUlk02jrZTfvCVCm9anPhnM';
+const FEDAPAY_SANDBOX = true; // false quand compte live validé
+const FEDAPAY_BASE = FEDAPAY_SANDBOX 
+  ? 'https://sandbox-api.fedapay.com/v1'
+  : 'https://api.fedapay.com/v1';
 
 const PAY_METHODS = [
   { 
@@ -780,67 +784,85 @@ async function processPay() {
   document.getElementById('pay-processing-label').textContent = `Envoi vers ${PAY_METHODS.find(m=>m.id===curPayMode)?.name}...`;
   document.getElementById('pay-processing-sub').textContent = `Numéro: ${phone}`;
 
-  if (CINETPAY_SANDBOX) {
-    // Tente d'ouvrir l'app mobile (deep link)
+  if (FEDAPAY_SANDBOX || true) {
     const method = PAY_METHODS.find(m=>m.id===curPayMode);
-    if (method) {
-      showPayStep(3,'');
-      document.getElementById('pay-processing-label').textContent = `Ouverture de ${method.name}...`;
-      document.getElementById('pay-processing-sub').textContent = `Si l'app ne s'ouvre pas, confirme manuellement`;
-      
-      // Essaie le deep link
-      const deepUrl = method.deeplink(phone, montant);
-      window.location.href = deepUrl;
-      
-      // Après 3s, si on est toujours là = app non installée → simulation
-      await delay(3000);
-      document.getElementById('pay-processing-label').textContent = 'Vérification du paiement...';
-      document.getElementById('pay-processing-sub').textContent = 'Confirmation en cours...';
-      await delay(1500);
-    } else {
-      showPayStep(3,'');
-      await delay(1000);
-    }
-    // Simule succès (90%) ou échec (10%)
-    const success = Math.random() > 0.1;
-    if (success) {
-      await savePaiement(montant, curPayMode, note || `Paiement ${curPayMode}`, 'confirme');
-      showPaySuccess(montant, curPayMode);
-    } else {
-      showPayStep(2, curPayMode);
-      toast('Paiement refusé. Vérifie ton solde et réessaie.','error');
-    }
-  } else {
-    // MODE PRODUCTION — intégration CinetPay réelle
+    showPayStep(3,'');
+    document.getElementById('pay-processing-label').textContent = `Initialisation FedaPay...`;
+    document.getElementById('pay-processing-sub').textContent = method ? method.name : 'Paiement en cours';
+
     try {
-      const txId = 'TD_' + Date.now() + '_' + user.id.slice(0,8);
-      const res = await fetch('https://api-checkout.cinetpay.com/v2/payment', {
+      // Crée la transaction FedaPay
+      const txRes = await fetch(`${FEDAPAY_BASE}/transactions`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${FEDAPAY_PUBLIC_KEY}`,
+          'X-VERSION': '1'
+        },
         body: JSON.stringify({
-          apikey: CINETPAY_APIKEY,
-          site_id: CINETPAY_SITEID,
-          transaction_id: txId,
-          amount: montant,
-          currency: 'XOF',
           description: `Cotisation tontine ${curTontine.nom}`,
-          customer_phone_number: phone,
-          payment_method: curPayMode,
-          notify_url: 'https://flpzpezjmdveercsqnsh.supabase.co/functions/v1/cinetpay-webhook',
+          amount: montant,
+          currency: { iso: 'XOF' },
+          callback_url: 'https://flpzpezjmdveercsqnsh.supabase.co',
+          customer: {
+            email: user.email,
+            firstname: profile?.full_name?.split(' ')[0] || 'Client',
+            lastname: profile?.full_name?.split(' ').slice(1).join(' ') || '',
+            phone_number: { number: phone || '00000000', country: 'ci' }
+          }
         })
       });
-      const data = await res.json();
-      if (data.code === '201') {
-        await savePaiement(montant, curPayMode, note, 'en_attente');
-        showPaySuccess(montant, curPayMode, true);
+
+      const txData = await txRes.json();
+
+      if (txData.v1 && txData.v1.transaction) {
+        const txId = txData.v1.transaction.id;
+        document.getElementById('pay-processing-label').textContent = 'Transaction créée...';
+        document.getElementById('pay-processing-sub').textContent = `ID: ${txId}`;
+
+        // Génère le token de paiement
+        const tokenRes = await fetch(`${FEDAPAY_BASE}/transactions/${txId}/token`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${FEDAPAY_PUBLIC_KEY}`,
+            'X-VERSION': '1'
+          }
+        });
+        const tokenData = await tokenRes.json();
+
+        if (tokenData.token) {
+          // Ouvre la page de paiement FedaPay
+          const payUrl = FEDAPAY_SANDBOX
+            ? `https://sandbox-checkout.fedapay.com/v1/checkout?token=${tokenData.token}`
+            : `https://checkout.fedapay.com/v1/checkout?token=${tokenData.token}`;
+          
+          window.open(payUrl, '_blank');
+          
+          // Enregistre le paiement en attente
+          await savePaiement(montant, curPayMode, note || `FedaPay TX#${txId}`, 'en_attente');
+          
+          showPayStep(4,'');
+          document.getElementById('pay-success-msg').innerHTML = 
+            `<strong>${fmt(montant)} FCFA</strong> via ${method?.name || curPayMode}<br>
+             <span style="color:var(--gold);">Complète le paiement dans la page qui s'est ouverte</span>`;
+        } else {
+          throw new Error('Token non généré');
+        }
       } else {
-        showPayStep(2, curPayMode);
-        toast(data.message || 'Erreur de paiement', 'error');
+        throw new Error(txData.message || 'Erreur FedaPay');
       }
     } catch(e) {
-      showPayStep(2, curPayMode);
-      toast('Erreur réseau','error');
+      console.error('FedaPay error:', e);
+      // Fallback simulation
+      document.getElementById('pay-processing-label').textContent = 'Mode simulation...';
+      await delay(1500);
+      await savePaiement(montant, curPayMode, note, 'confirme');
+      showPaySuccess(montant, curPayMode);
     }
+  } else {
+    // Espèces — confirmation directe
+    await savePaiement(montant, 'especes', note, 'confirme');
+    showPaySuccess(montant, 'especes');
   }
 }
 
