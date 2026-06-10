@@ -559,7 +559,11 @@ async function loadHome() {
   const nom = isEmail ? rawName.split('@')[0] : (rawName.split(' ')[0] || user.email?.split('@')[0] || 'toi');
   const { data: ms } = await sb.from('tontine_members').select('tontine_id,tontines(*)').eq('user_id', user.id).eq('statut','actif');
   const ts = ms?.map(m=>m.tontines).filter(Boolean) || [];
-  const total = ts.reduce((s,t)=>s+(t.montant||0),0);
+  const { data: paiementsTotal } = await sb.from('paiements')
+    .select('montant')
+    .eq('user_id', user.id)
+    .eq('statut', 'confirme');
+  const total = paiementsTotal?.reduce((s, p) => s + (p.montant || 0), 0) || 0;
   el.innerHTML = `
     <div style="margin-bottom:1rem;">
       <div style="font-size:.78rem;color:var(--muted);">Bonjour 👋</div>
@@ -687,10 +691,7 @@ async function loadPays(tid) {
 // FEDAPAY — Paiement intégré
 // ════════════════════════════════════════
 const FEDAPAY_PUBLIC_KEY = 'pk_sandbox_MmUlk02jrZTfvCVCm9anPhnM';
-const FEDAPAY_SANDBOX = true; // false quand compte live validé
-const FEDAPAY_BASE = FEDAPAY_SANDBOX 
-  ? 'https://sandbox-api.fedapay.com/v1'
-  : 'https://api.fedapay.com/v1';
+const FEDAPAY_PROXY = `${SB_URL}/functions/v1/fedapay-proxy`;
 
 const PAY_METHODS = [
   { 
@@ -784,85 +785,62 @@ async function processPay() {
   document.getElementById('pay-processing-label').textContent = `Envoi vers ${PAY_METHODS.find(m=>m.id===curPayMode)?.name}...`;
   document.getElementById('pay-processing-sub').textContent = `Numéro: ${phone}`;
 
-  if (FEDAPAY_SANDBOX || true) {
-    const method = PAY_METHODS.find(m=>m.id===curPayMode);
-    showPayStep(3,'');
-    document.getElementById('pay-processing-label').textContent = `Initialisation FedaPay...`;
-    document.getElementById('pay-processing-sub').textContent = method ? method.name : 'Paiement en cours';
+  const method = PAY_METHODS.find(m=>m.id===curPayMode);
+  showPayStep(3,'');
+  document.getElementById('pay-processing-label').textContent = `Initialisation du paiement...`;
+  document.getElementById('pay-processing-sub').textContent = method?.name || '';
 
-    try {
-      // Crée la transaction FedaPay
-      const txRes = await fetch(`${FEDAPAY_BASE}/transactions`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${FEDAPAY_PUBLIC_KEY}`,
-          'X-VERSION': '1'
-        },
-        body: JSON.stringify({
-          description: `Cotisation tontine ${curTontine.nom}`,
-          amount: montant,
-          currency: { iso: 'XOF' },
-          callback_url: 'https://flpzpezjmdveercsqnsh.supabase.co',
-          customer: {
-            email: user.email,
-            firstname: profile?.full_name?.split(' ')[0] || 'Client',
-            lastname: profile?.full_name?.split(' ').slice(1).join(' ') || '',
-            phone_number: { number: phone || '00000000', country: 'ci' }
-          }
-        })
-      });
-
-      const txData = await txRes.json();
-
-      if (txData.v1 && txData.v1.transaction) {
-        const txId = txData.v1.transaction.id;
-        document.getElementById('pay-processing-label').textContent = 'Transaction créée...';
-        document.getElementById('pay-processing-sub').textContent = `ID: ${txId}`;
-
-        // Génère le token de paiement
-        const tokenRes = await fetch(`${FEDAPAY_BASE}/transactions/${txId}/token`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${FEDAPAY_PUBLIC_KEY}`,
-            'X-VERSION': '1'
-          }
-        });
-        const tokenData = await tokenRes.json();
-
-        if (tokenData.token) {
-          // Ouvre la page de paiement FedaPay
-          const payUrl = FEDAPAY_SANDBOX
-            ? `https://sandbox-checkout.fedapay.com/v1/checkout?token=${tokenData.token}`
-            : `https://checkout.fedapay.com/v1/checkout?token=${tokenData.token}`;
-          
-          window.open(payUrl, '_blank');
-          
-          // Enregistre le paiement en attente
-          await savePaiement(montant, curPayMode, note || `FedaPay TX#${txId}`, 'en_attente');
-          
-          showPayStep(4,'');
-          document.getElementById('pay-success-msg').innerHTML = 
-            `<strong>${fmt(montant)} FCFA</strong> via ${method?.name || curPayMode}<br>
-             <span style="color:var(--gold);">Complète le paiement dans la page qui s'est ouverte</span>`;
-        } else {
-          throw new Error('Token non généré');
-        }
-      } else {
-        throw new Error(txData.message || 'Erreur FedaPay');
-      }
-    } catch(e) {
-      console.error('FedaPay error:', e);
-      // Fallback simulation
-      document.getElementById('pay-processing-label').textContent = 'Mode simulation...';
-      await delay(1500);
-      await savePaiement(montant, curPayMode, note, 'confirme');
-      showPaySuccess(montant, curPayMode);
-    }
-  } else {
-    // Espèces — confirmation directe
+  if (curPayMode === 'especes') {
     await savePaiement(montant, 'especes', note, 'confirme');
     showPaySuccess(montant, 'especes');
+    return;
+  }
+
+  try {
+    // Appelle l'Edge Function (proxy sans CORS)
+    const res = await fetch(FEDAPAY_PROXY, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${SB_KEY}`,
+      },
+      body: JSON.stringify({
+        action: 'create_transaction',
+        payload: {
+          description: `Cotisation - ${curTontine.nom}`,
+          amount: montant,
+          currency: { iso: 'XOF' },
+          callback_url: `${SB_URL}`,
+          customer: {
+            email: user.email,
+            firstname: (profile?.full_name || user.email).split(' ')[0],
+            lastname: (profile?.full_name || '').split(' ').slice(1).join(' ') || 'User',
+            phone_number: { number: phone, country: 'ci' }
+          }
+        }
+      })
+    });
+
+    const data = await res.json();
+
+    if (data.success && data.checkout_url) {
+      // Enregistre en attente
+      await savePaiement(montant, curPayMode, `FedaPay TX#${data.transaction_id}`, 'en_attente');
+      
+      // Ouvre la page de paiement FedaPay dans le navigateur
+      window.open(data.checkout_url, '_blank');
+      
+      showPayStep(4, '');
+      document.getElementById('pay-success-msg').innerHTML = `
+        <strong>${fmt(montant)} FCFA</strong> via ${method?.name}<br>
+        <span style="color:var(--orange);font-size:.82rem;">Une page de paiement s'est ouverte.<br>Complète le paiement puis reviens ici.</span>`;
+    } else {
+      throw new Error(data.error || 'Erreur de paiement');
+    }
+  } catch(e) {
+    console.error('Paiement error:', e);
+    showPayStep(2, curPayMode);
+    toast('Erreur : ' + (e.message || 'Réessaie plus tard'), 'error');
   }
 }
 
